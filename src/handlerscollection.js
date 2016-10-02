@@ -13,11 +13,11 @@ function HandlersCollection () {
 
 HandlersCollection.prototype.handle = function(event){
 	var handler = this.head.next
-	// while (handler) {
-	// 	handler.call(arg1)
-	// 	handler = handler.next
-	// }
-	handler.call(event)
+	while (handler) {
+		handler.call(event)
+		handler = handler.next
+	}
+	//handler.call(event)
 }
 
 HandlersCollection.prototype.push = function(callback){
@@ -49,23 +49,6 @@ HandlersCollection.prototype.remove = function(callback){
 HandlersCollection.prototype.empty = function(callback){
 	this.head.next = this.tail
 	this.tail.prev = this.head
-}
-
-HandlersCollection.prototype.includes = function(callback){
-	var handler = this.head.next
-	if (handler === this.tail) {
-		return false
-	}
-	if (!arguments.length) {
-		return false
-	}
-	while (handler) {
-		if (handler.callback === callback) {
-			return true;
-		}
-		handler = handler.next
-	}
-	return false;
 }
 
 module.exports = HandlersCollection

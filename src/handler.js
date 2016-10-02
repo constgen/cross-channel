@@ -17,7 +17,7 @@ Handler.prototype.call = function (event) {
 	var callback = this.callback
 	var next = this.next
 	callback(event)
-	next && next.call(event)
+	//next && next.call(event)
 }
 
 module.exports = Handler

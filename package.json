@@ -2,7 +2,7 @@
 	"name": "cross-channel",
 	"private": true,
 	"description": "A project sample for a JavaScript module",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"license": "MIT",
 	"author": "constgen",
 	"main": "src/index.js",

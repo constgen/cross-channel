@@ -108,15 +108,6 @@ describe('HandlersCollection', function(){
 		})
 	})
 
-	xdescribe('detects containment', function(){
-		beforeEach(function() {
-			eventHandlers.push(handler1)
-			eventHandlers.push(handler2)
-			eventHandlers.push(handler3)		
-			eventHandlers.push(handler4)
-		})
-	})
-
 	describe('can handle event', function(){
 		beforeEach(function() {
 			eventHandlers.push(handler1)
