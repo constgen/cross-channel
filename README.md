@@ -1,2 +1,2 @@
-# xchannel
+# CrossChannel
 Cross origin messaging channel

@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Test page</title>
+
+	<script src="http://localhost:35729/livereload.js"></script>
+
+	<script src="../node_modules/systemjs/dist/system.src.js"></script>
+	<script src="../system.config.js"></script>
+	<script>
+		System['import']('../src/index.js')
+			.then(function(CrossChannel){
+				window.CrossChannel = CrossChannel
+			})
+			['catch'](function(err){
+				console.error(err)
+			})
+	</script>
+</head>
+<body>
+</body>
+</html>
