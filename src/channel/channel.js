@@ -1,5 +1,4 @@
-'use strict'
-
+﻿'use strict'
 
 function Channel (id){
 	this.transport = new BroadcastChannel(id)
@@ -23,3 +22,7 @@ Channel.prototype.close = function(){
 
 
 module.exports = Channel
+
+
+
+

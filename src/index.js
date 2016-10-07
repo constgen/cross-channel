@@ -1,18 +1,18 @@
 ﻿'use strict';
 
-var CrossMessage = require('./message.js')
-var HandlersCollection = require('./handlerscollection.js')
+var MessageEvent = require('./message-event.js')
+var HandlersCollection = require('./handlers-collection.js')
 var channels = require('./channels.js')
-var Protocol = require('./protocol.js')
+var Channel = require('./channel/channel.js')
 
 function CrossChannel(name) {
+	var crosschannel = this
 	if (!arguments.length) {
 		throw new TypeError('Failed to construct \'CrossChannel\': 1 argument required, but only 0 present')
 	}
 	if (!(this instanceof CrossChannel)) {
 		throw TypeError('Failed to construct \'BroadcastChannel\': Please use the \'new\' operator, this constructor cannot be called as a function.')
 	}
-	var crosschannel = this;
 	this.name = String(name)
 	this.onmessage = null
 	this.onclose = null//???????
@@ -24,11 +24,12 @@ function CrossChannel(name) {
 		this.channel = channels[this.name]
 	}
 	else {
-		this.channel = new Protocol(this.name)
+		this.channel = new Channel(this.name)
 		channels[this.name] = this.channel
 	}
 
 	this.channel.onRecieve(function(message){
+		var event = new MessageEvent(message)
 		crosschannel.messageHandlers.handle(message)
 		if (typeof crosschannel.onmessage === 'function') {
 			crosschannel.onmessage(event)
@@ -49,6 +50,16 @@ CrossChannel.prototype.removeAllListeners = function () {
 	this.messageHandlers.empty()
 }
 
+CrossChannel.prototype.once = function(type, handler){
+	var crosschannel = this
+	function removeHandler(){
+		crosschannel.messageHandlers.remove(handler)
+		crosschannel.messageHandlers.remove(removeHandler)
+	}
+	this.messageHandlers.push(handler)
+	this.messageHandlers.push(removeHandler)
+}
+
 CrossChannel.prototype.postMessage = function (message) {
 	if (!arguments.length) {
 		throw new TypeError('Failed to execute \'postMessage\' on \'CrossChannel\': 1 argument required, but only 0 present.')
@@ -56,21 +67,17 @@ CrossChannel.prototype.postMessage = function (message) {
 	if (this.closed) {
 		return
 	}
-	var message = new CrossMessage(message);
 	this.channel.send(message)
 }
 
-CrossChannel.prototype.close = function (params) {
+CrossChannel.prototype.close = function () {
 	this.channel.close()
 	this.messageHandlers.empty()
 	this.closed = true
 }
 
-CrossChannel.prototype.valueOf = function (params) {
+CrossChannel.prototype.valueOf = function () {
 	return '[object CrossChannel]'
 }
 
 module.exports = CrossChannel
-
-//globalScope.channel = channel;
-//globalScope.emitter = emitter;

@@ -136,7 +136,7 @@ describe('instance', function () {
 			done()
 		})
 	})
-	xit('can listen "message" event once', function (done) {
+	it('can listen "message" event once', function (done) {
 		channel1.once('message', handler1)
 		channel2.postMessage(messageObject)
 		channel2.postMessage(messageObject)
