@@ -1,3 +1,0 @@
-'use strict';
-
-exports.channels = {};

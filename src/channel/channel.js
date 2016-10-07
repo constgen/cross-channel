@@ -1,24 +1,15 @@
 ﻿'use strict'
 
+//var Transport = require('./broadcastchannel.transport.js')
+var Transport = require('./postmessage.transport.js')
+
+
 function Channel (id){
-	this.transport = new BroadcastChannel(id)
+	Transport.call(this, id)
 }
 
-Channel.prototype.onRecieve = function(handler){
-	this.transport.addEventListener('message', handler)
-}
-
-Channel.prototype.send = function(message){
-	this.transport.postMessage(message)
-}
-
-Channel.prototype.onError = function(handler){
-	
-}
-
-Channel.prototype.close = function(){
-	this.transport.close()
-}
+Channel.prototype = Object.create(Transport.prototype)
+Channel.prototype.constructor = Channel
 
 
 module.exports = Channel

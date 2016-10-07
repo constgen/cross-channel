@@ -1,6 +1,6 @@
 'use strict'
 
-var HandlersCollection = require('../../src/handlers-collection.js')
+var HandlersCollection = require('../../../src/types/handlers-collection.js')
 
 var eventHandlers
 var handler1

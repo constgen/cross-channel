@@ -74,22 +74,24 @@ describe('instance', function () {
 			done()
 		})
 	})
-	xit('can send string messages', function (done) {
+	it('can send string messages', function (done) {
 		channel1.addEventListener('message', handler1)
 		channel2.postMessage(messageString)
 		
 		delay(function(){
-			expect(handler1).toHaveBeenCalledWith(messageString)
+			var eventData = handler1.calls.mostRecent().args[0].data
+			expect(eventData).toEqual(messageString)
 			done()
 		})
 	})
-	xit('can send object messages', function (done) {
+	it('can send object messages', function (done) {
 		channel1.addEventListener('message', handler1)
 		channel2.postMessage(messageObject)
 
-		expect(handler1).toHaveBeenCalledWith()
 		delay(function(){
-			
+			var eventData = handler1.calls.mostRecent().args[0].data
+			expect(eventData).not.toBe(messageObject)
+			expect(eventData).toEqual(messageObject)
 			done()
 		})
 	})
@@ -107,7 +109,7 @@ describe('instance', function () {
 			done()
 		})
 	})
-	xit('can unsubscribe all listeners', function (done) {
+	it('can unsubscribe all listeners', function (done) {
 		channel1.addEventListener('message', handler1)
 		channel2.postMessage(messageString)
 		channel1.addEventListener('message', handler2)
