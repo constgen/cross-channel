@@ -2,8 +2,14 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Test page</title>
-
+	<title>Main frame</title>
+	<style>
+		iframe {
+			height: 250px;
+			width: 50%;
+			margin: 20px;
+		}
+	</style>
 	<script src="http://localhost:35729/livereload.js"></script>
 
 	<script src="../node_modules/systemjs/dist/system.src.js"></script>
@@ -15,9 +21,31 @@
 			})
 			['catch'](function(err){
 				console.error(err)
-			})
+			}).then(listen)
+	
+		function listen(){
+			window.mainChannel = new CrossChannel('cross-test')
+			window.mainChannel2 = new CrossChannel('cross-test')
+			mainChannel.on('message',handleMessageEventfunction )
+			//mainChannel2.on('message',handleMessageEventfunction )
+		}
+		function handleMessageEventfunction(e){
+			var log = document.createElement('div')
+			console.log(document.body, e)
+			log.textContent = JSON.stringify(e.data)
+			document.body.appendChild(log)
+		}
+
+		function send(){
+			mainChannel.postMessage({test: 'data from ' + document.querySelector('title').textContent})
+		}
 	</script>
 </head>
 <body>
+	<button type="button" onclick="send()">Send</button>
+	<br>
+	<iframe src="frame1.html"></iframe>
+	<br>
+	<iframe src="http://dropbox.loc/Projects%20GitHub/cross-channel/demo/frame3.html"></iframe>
 </body>
 </html>

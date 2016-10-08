@@ -1,6 +1,6 @@
 'use strict'
 
-//var Symbol = require('es6-symbol')
+var Symbol = require('es6-symbol')
 var Handler = require('./handler.js')
 
 function HandlersCollection () {

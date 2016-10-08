@@ -4,6 +4,7 @@ module.exports = function (grunt) {
 		TEST_DIR = 'test',
 		BUILD_DIR = 'dist',
  		TASKS_DIR = 'tasks',
+		DEMO_DIR = 'demo',
 		MODULE_NAME = 'cross-channel';
 
 	grunt.initConfig({
@@ -13,7 +14,8 @@ module.exports = function (grunt) {
 					SRC_DIR + '/**/*.js',
 					SRC_DIR + '/**/*.json',
 					TEST_DIR +  '/**/*.js',
-					TEST_DIR +  '/**/*.json'
+					TEST_DIR +  '/**/*.json',
+					DEMO_DIR +  '/**/*'
 				],
 				//tasks: ['jshint'],
 				options: {
@@ -64,7 +66,7 @@ module.exports = function (grunt) {
 				options: {
 					baseURL: SRC_DIR,
 					config: 'system.config.js',
-					type: 'sfx', //sfx, bundle
+					type: 'build', //build, bundle
 					format: 'umd',
 					minify: false,
 					sourceMaps: true
@@ -76,7 +78,7 @@ module.exports = function (grunt) {
 				options: {
 					baseURL: SRC_DIR,
 					config: 'system.config.js',
-					type: 'sfx', //sfx, bundle
+					type: 'build', //build, bundle
 					format: 'umd',
 					minify: true,
 					//mangle: true,
@@ -89,7 +91,7 @@ module.exports = function (grunt) {
 				options: {
 					baseURL: TEST_DIR,
 					config: 'system.config.js',
-					type: 'sfx', //sfx, bundle
+					type: 'build', //build, bundle
 					format: 'umd',
 					minify: false
 				}

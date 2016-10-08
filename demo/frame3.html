@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Frame 3</title>
+
+	<script src="../node_modules/systemjs/dist/system.src.js"></script>
+	<script src="../system.config.js"></script>
+	<script>
+		System['import']('../src/index.js')
+			.then(function(CrossChannel){
+				window.CrossChannel = CrossChannel
+			})
+			['catch'](function(err){
+				console.error(err)
+			}).then(listen)
+	
+		function listen(){
+			window.frame3Channel = new CrossChannel('cross-test')
+			frame3Channel.on('message', function(e){
+				var log = document.createElement('div')
+				console.info(document.body, e)
+				log.textContent = JSON.stringify(e.data)
+				document.body.appendChild(log)
+			})
+		}
+
+		function send(){
+			frame3Channel.postMessage({test: 'data from ' + document.querySelector('title').textContent})
+		}
+	</script>
+</head>
+<body>
+	<button type="button" onclick="send()">Send</button>
+</body>
+</html>
