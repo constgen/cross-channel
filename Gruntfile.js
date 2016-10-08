@@ -3,8 +3,8 @@ module.exports = function (grunt) {
 		SRC_DIR = 'src',
 		TEST_DIR = 'test',
 		BUILD_DIR = 'dist',
-        TASKS_DIR = 'tasks',
-		MODULE_NAME = 'sample-module';
+ 		TASKS_DIR = 'tasks',
+		MODULE_NAME = 'cross-channel';
 
 	grunt.initConfig({
 		watch: {
@@ -47,9 +47,9 @@ module.exports = function (grunt) {
 			dev: {
 				options: {
 					//polyfills: [''],
-					vendor: [
-						'./node_modules/systemjs-builder/node_modules/systemjs/dist/system.src.js'
-					],
+					// vendor: [
+					// 	'./node_modules/systemjs/dist/system.src.js'
+					// ],
 					//helpers: [''],
 					keepRunner: false,
 					outfile: TEST_DIR + '/test.html',
