@@ -1,7 +1,9 @@
 'use strict'
 
+var createNoop = require('../utils/create-noop.js')
+
 function Handler(callback, identifier){
-	callback = callback || new Function()
+	callback = callback || createNoop()
 	if (callback[identifier]) {
 		return callback[identifier]
 	}
@@ -15,9 +17,7 @@ function Handler(callback, identifier){
 
 Handler.prototype.call = function (event) {
 	var callback = this.callback
-	var next = this.next
 	callback(event)
-	//next && next.call(event)
 }
 
 module.exports = Handler

@@ -46,7 +46,7 @@ HandlersCollection.prototype.remove = function(callback){
 	}
 }
 
-HandlersCollection.prototype.empty = function(callback){
+HandlersCollection.prototype.empty = function(){
 	this.head.next = this.tail
 	this.tail.prev = this.head
 }
