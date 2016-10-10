@@ -9,12 +9,21 @@
 			width: 50%;
 			margin: 20px;
 		}
+
+		.red {
+			color: darkred;
+		}
+		.green {
+			color: darkgreen;
+		}
 	</style>
 	<script src="http://localhost:35729/livereload.js"></script>
 
 	<script src="../node_modules/systemjs/dist/system.src.js"></script>
 	<script src="../system.config.js"></script>
 	<script>
+		var title = document.querySelector('title').textContent
+
 		System['import']('../src/index.js')
 			.then(function(CrossChannel){
 				window.CrossChannel = CrossChannel
@@ -24,25 +33,39 @@
 			}).then(listen)
 	
 		function listen(){
-			window.mainChannel = new CrossChannel('cross-test')
-			window.mainChannel2 = new CrossChannel('cross-test')
-			mainChannel.on('message',handleMessageEventfunction )
-			//mainChannel2.on('message',handleMessageEventfunction )
+			window.redChannel = new CrossChannel('red')
+			window.greenChannel = new CrossChannel('green')
+			redChannel.on('message', handleRedMessageEvent)
+			greenChannel.on('message', handleGreenMessageEvent)
 		}
-		function handleMessageEventfunction(e){
+		function log(color, text){
 			var log = document.createElement('div')
-			console.log(document.body, e)
-			log.textContent = JSON.stringify(e.data)
+			log.className = color
+			log.textContent = JSON.stringify(text)
 			document.body.appendChild(log)
 		}
 
-		function send(){
-			mainChannel.postMessage({test: 'data from ' + document.querySelector('title').textContent})
+		function handleRedMessageEvent(e){
+			console.info(title, e)
+			log('red', e.data)
+		}
+		function handleGreenMessageEvent(e){
+			console.info(title, e)
+			log('green', e.data)
+		}
+
+
+		function sendRed(){
+			redChannel.postMessage({test: 'data from ' + title})
+		}
+		function sendGreen(){
+			greenChannel.postMessage({test: 'data from ' + title})
 		}
 	</script>
 </head>
 <body>
-	<button type="button" onclick="send()">Send</button>
+	<button class="red" type="button" onclick="sendRed()">Send</button>
+	<button class="green" type="button" onclick="sendGreen()">Send</button>
 	<br>
 	<iframe src="frame1.html"></iframe>
 	<br>

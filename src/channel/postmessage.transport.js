@@ -8,22 +8,22 @@ var environment = require('../utils/environment.js')
 
 var global = environment.global
 
-function Transport() {
+function Transport(name) {
 	this.port = global.window
 	this.origin = '*' //location = global.window.location, location && (location.origin || (location.protocol + '//' + location.host)) || '*'
 	this.listeners = []
+	this.name = name
 	this.key = generateRandomKey()
 }
 
 Transport.prototype.send = function (data) {
 	var origin = this.origin
-	var message = new Message(data, this.key)
+	var message = new Message(data, this)
 	var index = -1
-	var browserWindow = global.window || {}
+	var browserWindow = this.port
 	var topBrowserWindow = browserWindow.top
 	var browserFrames = topBrowserWindow && [topBrowserWindow].concat(getAllChildWindows(topBrowserWindow)) || [];
 
-	//this.port.postMessage(message, origin) //!!!!!!!!!!!!!!!!!!!!
 	while (++index in browserFrames) {
 		try {
 			browserFrames[index].postMessage(message, origin)
@@ -44,7 +44,12 @@ Transport.prototype.onMessageEvent = function (handler) {
 	var transport = this
 	function listener(event) {
 		var messageEvent = new MessageEvent(event)
-		if (('key' in messageEvent) && transport.key !== messageEvent.key) { //skip events that was returned back or are not native
+		if (
+			('key' in messageEvent) 
+			&& ('sourceChannel' in messageEvent)
+			&& transport.name === messageEvent.sourceChannel
+			&& transport.key !== messageEvent.key //skip events that was returned back or are not native
+		) { 
 			handler(messageEvent)
 		}
 	}

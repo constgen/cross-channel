@@ -6,7 +6,7 @@ var Channel = require('./channel/channel.js')
 function CrossChannel(name) {
 	var crosschannel = this
 	if (!arguments.length) {
-		throw new TypeError('Failed to construct \'CrossChannel\': 1 argument required, but only 0 present')
+		throw new TypeError('Failed to construct \'CrossChannel\': 1 argument required, but only 0 present.')
 	}
 	if (!(this instanceof CrossChannel)) {
 		throw new TypeError('Failed to construct \'CrossChannel\': Please use the \'new\' operator, this constructor cannot be called as a function.')

@@ -1,8 +1,15 @@
 'use strict'
 
-function Message(data, key){
+/**
+ * Message entity constructor
+ * @param {*} data - any data to be transfered
+ * @param {Object} [source] - source sent from
+ */
+function Message(data, source){
+	source = source || {}
 	this.data = data
-	this.key = key
+	this.key = source.key
+	this.sourceChannel = source.name
 }
 
 // Message.prototype.toJSON = function(){

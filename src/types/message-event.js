@@ -1,5 +1,10 @@
 ﻿'use strict';
 
+var environment = require('../utils/environment.js')
+
+var window = environment.window
+var EventConstructor = window.MessageEvent || Object
+
 function MessageEvent(config) {
 	config = config || {}
 	var message = config.data || {}
@@ -45,14 +50,22 @@ function MessageEvent(config) {
 			value: config.timeStamp || 0,
 			writable: false
 		},
+		'origin': {
+			value: config.origin || '',
+			writable: false
+		},
 		'key': {
 			value: message.key,
+			writable: false
+		},
+		'sourceChannel': {
+			value: message.sourceChannel,
 			writable: false
 		}
 	});
 }
 
-MessageEvent.prototype = Object.create(self.MessageEvent.prototype)
+MessageEvent.prototype = Object.create(EventConstructor.prototype)
 MessageEvent.prototype.constructor = MessageEvent
 
 module.exports = MessageEvent

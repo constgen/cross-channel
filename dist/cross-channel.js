@@ -41,14 +41,13 @@ $__System.registerDynamic('3', ['2'], true, function ($__require, exports, modul
 	module.exports = Handler;
 	return module.exports;
 });
-$__System.registerDynamic('4', ['3'], true, function ($__require, exports, module) {
+$__System.registerDynamic('4', ['5', '3'], true, function ($__require, exports, module) {
 	'use strict';
-
-	//var Symbol = require('es6-symbol')
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
+	var Symbol = $__require('5');
 	var Handler = $__require('3');
 
 	function HandlersCollection() {
@@ -103,12 +102,578 @@ $__System.registerDynamic('4', ['3'], true, function ($__require, exports, modul
 	module.exports = HandlersCollection;
 	return module.exports;
 });
-$__System.registerDynamic('5', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('6', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
+	var validTypes = { object: true, symbol: true };
+
+	module.exports = function () {
+		var symbol;
+		if (typeof Symbol !== 'function') return false;
+		symbol = Symbol('test symbol');
+		try {
+			String(symbol);
+		} catch (e) {
+			return false;
+		}
+
+		// Return 'true' also for polyfills
+		if (!validTypes[typeof Symbol.iterator]) return false;
+		if (!validTypes[typeof Symbol.toPrimitive]) return false;
+		if (!validTypes[typeof Symbol.toStringTag]) return false;
+
+		return true;
+	};
+	return module.exports;
+});
+$__System.registerDynamic('7', [], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	module.exports = function () {
+		var assign = Object.assign,
+		    obj;
+		if (typeof assign !== 'function') return false;
+		obj = { foo: 'raz' };
+		assign(obj, { bar: 'dwa' }, { trzy: 'trzy' });
+		return obj.foo + obj.bar + obj.trzy === 'razdwatrzy';
+	};
+	return module.exports;
+});
+$__System.registerDynamic('8', [], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	module.exports = function () {
+		try {
+			Object.keys('primitive');
+			return true;
+		} catch (e) {
+			return false;
+		}
+	};
+	return module.exports;
+});
+$__System.registerDynamic('9', [], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var keys = Object.keys;
+
+	module.exports = function (object) {
+		return keys(object == null ? object : Object(object));
+	};
+	return module.exports;
+});
+$__System.registerDynamic('a', ['8', '9'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	module.exports = $__require('8')() ? Object.keys : $__require('9');
+	return module.exports;
+});
+$__System.registerDynamic("b", [], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	module.exports = function (value) {
+		if (value == null) throw new TypeError("Cannot use null or undefined");
+		return value;
+	};
+	return module.exports;
+});
+$__System.registerDynamic('c', ['a', 'b'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var keys = $__require('a'),
+	    value = $__require('b'),
+	    max = Math.max;
+
+	module.exports = function (dest, src /*, …srcn*/) {
+		var error,
+		    i,
+		    l = max(arguments.length, 2),
+		    assign;
+		dest = Object(value(dest));
+		assign = function (key) {
+			try {
+				dest[key] = src[key];
+			} catch (e) {
+				if (!error) error = e;
+			}
+		};
+		for (i = 1; i < l; ++i) {
+			src = arguments[i];
+			keys(src).forEach(assign);
+		}
+		if (error !== undefined) throw error;
+		return dest;
+	};
+	return module.exports;
+});
+$__System.registerDynamic('d', ['7', 'c'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	module.exports = $__require('7')() ? Object.assign : $__require('c');
+	return module.exports;
+});
+$__System.registerDynamic('e', [], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var forEach = Array.prototype.forEach,
+	    create = Object.create;
+
+	var process = function (src, obj) {
+		var key;
+		for (key in src) obj[key] = src[key];
+	};
+
+	module.exports = function (options /*, …options*/) {
+		var result = create(null);
+		forEach.call(arguments, function (options) {
+			if (options == null) return;
+			process(Object(options), result);
+		});
+		return result;
+	};
+	return module.exports;
+});
+$__System.registerDynamic('f', [], true, function ($__require, exports, module) {
+  // Deprecated
+
+  'use strict';
+
+  var define,
+      global = this || self,
+      GLOBAL = global;
+  module.exports = function (obj) {
+    return typeof obj === 'function';
+  };
+  return module.exports;
+});
+$__System.registerDynamic('10', [], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var str = 'razdwatrzy';
+
+	module.exports = function () {
+		if (typeof str.contains !== 'function') return false;
+		return str.contains('dwa') === true && str.contains('foo') === false;
+	};
+	return module.exports;
+});
+$__System.registerDynamic('11', [], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var indexOf = String.prototype.indexOf;
+
+	module.exports = function (searchString /*, position*/) {
+		return indexOf.call(this, searchString, arguments[1]) > -1;
+	};
+	return module.exports;
+});
+$__System.registerDynamic('12', ['10', '11'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	module.exports = $__require('10')() ? String.prototype.contains : $__require('11');
+	return module.exports;
+});
+$__System.registerDynamic('13', ['d', 'e', 'f', '12'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var assign = $__require('d'),
+	    normalizeOpts = $__require('e'),
+	    isCallable = $__require('f'),
+	    contains = $__require('12'),
+	    d;
+
+	d = module.exports = function (dscr, value /*, options*/) {
+		var c, e, w, options, desc;
+		if (arguments.length < 2 || typeof dscr !== 'string') {
+			options = value;
+			value = dscr;
+			dscr = null;
+		} else {
+			options = arguments[2];
+		}
+		if (dscr == null) {
+			c = w = true;
+			e = false;
+		} else {
+			c = contains.call(dscr, 'c');
+			e = contains.call(dscr, 'e');
+			w = contains.call(dscr, 'w');
+		}
+
+		desc = { value: value, configurable: c, enumerable: e, writable: w };
+		return !options ? desc : assign(normalizeOpts(options), desc);
+	};
+
+	d.gs = function (dscr, get, set /*, options*/) {
+		var c, e, options, desc;
+		if (typeof dscr !== 'string') {
+			options = set;
+			set = get;
+			get = dscr;
+			dscr = null;
+		} else {
+			options = arguments[3];
+		}
+		if (get == null) {
+			get = undefined;
+		} else if (!isCallable(get)) {
+			options = get;
+			get = set = undefined;
+		} else if (set == null) {
+			set = undefined;
+		} else if (!isCallable(set)) {
+			options = set;
+			set = undefined;
+		}
+		if (dscr == null) {
+			c = true;
+			e = false;
+		} else {
+			c = contains.call(dscr, 'c');
+			e = contains.call(dscr, 'e');
+		}
+
+		desc = { get: get, set: set, configurable: c, enumerable: e };
+		return !options ? desc : assign(normalizeOpts(options), desc);
+	};
+	return module.exports;
+});
+$__System.registerDynamic('14', [], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	module.exports = function (x) {
+		if (!x) return false;
+		if (typeof x === 'symbol') return true;
+		if (!x.constructor) return false;
+		if (x.constructor.name !== 'Symbol') return false;
+		return x[x.constructor.toStringTag] === 'Symbol';
+	};
+	return module.exports;
+});
+$__System.registerDynamic('15', ['14'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var isSymbol = $__require('14');
+
+	module.exports = function (value) {
+		if (!isSymbol(value)) throw new TypeError(value + " is not a symbol");
+		return value;
+	};
+	return module.exports;
+});
+$__System.registerDynamic('16', ['13', '15'], true, function ($__require, exports, module) {
+	// ES2015 Symbol polyfill for environments that do not support it (or partially support it)
+
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var d = $__require('13'),
+	    validateSymbol = $__require('15'),
+	    create = Object.create,
+	    defineProperties = Object.defineProperties,
+	    defineProperty = Object.defineProperty,
+	    objPrototype = Object.prototype,
+	    NativeSymbol,
+	    SymbolPolyfill,
+	    HiddenSymbol,
+	    globalSymbols = create(null),
+	    isNativeSafe;
+
+	if (typeof Symbol === 'function') {
+		NativeSymbol = Symbol;
+		try {
+			String(NativeSymbol());
+			isNativeSafe = true;
+		} catch (ignore) {}
+	}
+
+	var generateName = function () {
+		var created = create(null);
+		return function (desc) {
+			var postfix = 0,
+			    name,
+			    ie11BugWorkaround;
+			while (created[desc + (postfix || '')]) ++postfix;
+			desc += postfix || '';
+			created[desc] = true;
+			name = '@@' + desc;
+			defineProperty(objPrototype, name, d.gs(null, function (value) {
+				// For IE11 issue see:
+				// https://connect.microsoft.com/IE/feedbackdetail/view/1928508/
+				//    ie11-broken-getters-on-dom-objects
+				// https://github.com/medikoo/es6-symbol/issues/12
+				if (ie11BugWorkaround) return;
+				ie11BugWorkaround = true;
+				defineProperty(this, name, d(value));
+				ie11BugWorkaround = false;
+			}));
+			return name;
+		};
+	}();
+
+	// Internal constructor (not one exposed) for creating Symbol instances.
+	// This one is used to ensure that `someSymbol instanceof Symbol` always return false
+	HiddenSymbol = function Symbol(description) {
+		if (this instanceof HiddenSymbol) throw new TypeError('TypeError: Symbol is not a constructor');
+		return SymbolPolyfill(description);
+	};
+
+	// Exposed `Symbol` constructor
+	// (returns instances of HiddenSymbol)
+	module.exports = SymbolPolyfill = function Symbol(description) {
+		var symbol;
+		if (this instanceof Symbol) throw new TypeError('TypeError: Symbol is not a constructor');
+		if (isNativeSafe) return NativeSymbol(description);
+		symbol = create(HiddenSymbol.prototype);
+		description = description === undefined ? '' : String(description);
+		return defineProperties(symbol, {
+			__description__: d('', description),
+			__name__: d('', generateName(description))
+		});
+	};
+	defineProperties(SymbolPolyfill, {
+		for: d(function (key) {
+			if (globalSymbols[key]) return globalSymbols[key];
+			return globalSymbols[key] = SymbolPolyfill(String(key));
+		}),
+		keyFor: d(function (s) {
+			var key;
+			validateSymbol(s);
+			for (key in globalSymbols) if (globalSymbols[key] === s) return key;
+		}),
+
+		// If there's native implementation of given symbol, let's fallback to it
+		// to ensure proper interoperability with other native functions e.g. Array.from
+		hasInstance: d('', NativeSymbol && NativeSymbol.hasInstance || SymbolPolyfill('hasInstance')),
+		isConcatSpreadable: d('', NativeSymbol && NativeSymbol.isConcatSpreadable || SymbolPolyfill('isConcatSpreadable')),
+		iterator: d('', NativeSymbol && NativeSymbol.iterator || SymbolPolyfill('iterator')),
+		match: d('', NativeSymbol && NativeSymbol.match || SymbolPolyfill('match')),
+		replace: d('', NativeSymbol && NativeSymbol.replace || SymbolPolyfill('replace')),
+		search: d('', NativeSymbol && NativeSymbol.search || SymbolPolyfill('search')),
+		species: d('', NativeSymbol && NativeSymbol.species || SymbolPolyfill('species')),
+		split: d('', NativeSymbol && NativeSymbol.split || SymbolPolyfill('split')),
+		toPrimitive: d('', NativeSymbol && NativeSymbol.toPrimitive || SymbolPolyfill('toPrimitive')),
+		toStringTag: d('', NativeSymbol && NativeSymbol.toStringTag || SymbolPolyfill('toStringTag')),
+		unscopables: d('', NativeSymbol && NativeSymbol.unscopables || SymbolPolyfill('unscopables'))
+	});
+
+	// Internal tweaks for real symbol producer
+	defineProperties(HiddenSymbol.prototype, {
+		constructor: d(SymbolPolyfill),
+		toString: d('', function () {
+			return this.__name__;
+		})
+	});
+
+	// Proper implementation of methods exposed on Symbol.prototype
+	// They won't be accessible on produced symbol instances as they derive from HiddenSymbol.prototype
+	defineProperties(SymbolPolyfill.prototype, {
+		toString: d(function () {
+			return 'Symbol (' + validateSymbol(this).__description__ + ')';
+		}),
+		valueOf: d(function () {
+			return validateSymbol(this);
+		})
+	});
+	defineProperty(SymbolPolyfill.prototype, SymbolPolyfill.toPrimitive, d('', function () {
+		var symbol = validateSymbol(this);
+		if (typeof symbol === 'symbol') return symbol;
+		return symbol.toString();
+	}));
+	defineProperty(SymbolPolyfill.prototype, SymbolPolyfill.toStringTag, d('c', 'Symbol'));
+
+	// Proper implementaton of toPrimitive and toStringTag for returned symbol instances
+	defineProperty(HiddenSymbol.prototype, SymbolPolyfill.toStringTag, d('c', SymbolPolyfill.prototype[SymbolPolyfill.toStringTag]));
+
+	// Note: It's important to define `toPrimitive` as last one, as some implementations
+	// implement `toPrimitive` natively without implementing `toStringTag` (or other specified symbols)
+	// And that may invoke error in definition flow:
+	// See: https://github.com/medikoo/es6-symbol/issues/13#issuecomment-164146149
+	defineProperty(HiddenSymbol.prototype, SymbolPolyfill.toPrimitive, d('c', SymbolPolyfill.prototype[SymbolPolyfill.toPrimitive]));
+	return module.exports;
+});
+$__System.registerDynamic('5', ['6', '16'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var define,
+      global = this || self,
+      GLOBAL = global;
+  module.exports = $__require('6')() ? Symbol : $__require('16');
+  return module.exports;
+});
+$__System.registerDynamic('17', ['5', '18', '19', '1a', '1b', '1c'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var Symbol = $__require('5');
+	var PostMessageTransport = $__require('18');
+	var MessageEvent = $__require('19');
+	var Message = $__require('1a');
+	var getAllChildWindows = $__require('1b');
+	var environment = $__require('1c');
+
+	var global = environment.global;
+
+	function getGUI(window) {
+		return window && window.nwDispatcher.requireNwGui();
+	}
+
+	function whenGuiReadyThen(callback) {
+		var gui = getGUI(global.window);
+		if (gui) {
+			callback(gui);
+			return;
+		}
+		var timerId = setInterval(function () {
+			gui = getGUI(global.window);
+			if (gui) {
+				clearInterval(timerId);
+				callback(gui);
+			}
+		}, 10);
+	}
+
+	function getNWWindowThen(callback) {
+		whenGuiReadyThen(function (gui) {
+			var nwWindow = gui.Window.get();
+			callback(nwWindow);
+		});
+	}
+
+	// getNWWindowThen(function (nwWindow) {
+	// 	//listen, when new page is open
+	// 	nwWindowwin.on('loaded', function () {
+	// 		var browserWindow = global.window;
+	// 		//listen main window only once
+	// 		if (!browserWindow[omen]) {
+	// 			browserWindow[omen] = true; //mark as listened by Node
+	// 			attachMessageHandlers();
+	// 		}
+	// 	});
+	// });
+
+	function Transport(id) {
+		PostMessageTransport.call(this, id);
+		delete this.port; //clear reference to a window
+	}
+	Transport.prototype = Object.create(PostMessageTransport.prototype);
+	Transport.prototype.constructor = Transport;
+	//computed `this.port`
+	Object.defineProperty(Transport.prototype, 'port', {
+		get: function () {
+			return global.window;
+		},
+		set: function (value) {}
+	});
+
+	Transport.prototype.send = function (data) {
+		var origin = this.origin;
+		var message = new Message(data, this);
+		var browserWindow = this.port || {};
+		var topBrowserWindow = browserWindow.top;
+		var browserFrames = topBrowserWindow && [topBrowserWindow].concat(getAllChildWindows(topBrowserWindow)) || [];
+
+		getNWWindowThen(function (nwWindow) {
+			var index = -1;
+			while (++index in browserFrames) {
+				//.replace(/'/g, '\\\'')
+				nwWindow.eval(browserFrames[index].frameElement || null, 'window.postMessage(' + JSON.stringify(message.asJSON()) + ', "' + origin + '")');
+			}
+		});
+	};
+
+	Transport.prototype.onMessageEvent = function (handler) {
+		var transport = this;
+		function listener(e) {
+			var window = this;
+			var nativeMessageEventWorks = window.MessageEvent && window.MessageEvent.length;
+			var event = nativeMessageEventWorks ? new window.MessageEvent('message', e) : e; //fixes crashes in NWjs, when read `e.data`
+			var messageEvent = new MessageEvent(event);
+
+			if ('key' in messageEvent && 'sourceChannel' in messageEvent && transport.name === messageEvent.sourceChannel && transport.key !== messageEvent.key //skip events that was returned back or are not native
+			) {
+					handler(messageEvent);
+				}
+		}
+		if (this.port && this.port.addEventListener) {
+			this.port.addEventListener('message', listener);
+			this.listeners.push(listener);
+		}
+	};
+
+	// Transport.prototype.close = function () {
+	// 	var listeners = this.listeners
+	// 	var port = this.port
+	// 	var index = listeners.length
+	// 	while (index--) {
+	// 		port.removeEventListener('message', listeners[index])
+	// 	}
+	// 	this.listeners.length = 0
+	// }
+
+	module.exports = Transport;
+	return module.exports;
+});
+$__System.registerDynamic('19', ['1c'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var environment = $__require('1c');
+
+	var window = environment.window;
+	var EventConstructor = window.MessageEvent || Object;
+
 	function MessageEvent(config) {
 		config = config || {};
 		var message = config.data || {};
@@ -153,28 +718,44 @@ $__System.registerDynamic('5', [], true, function ($__require, exports, module) 
 				value: config.timeStamp || 0,
 				writable: false
 			},
+			'origin': {
+				value: config.origin || '',
+				writable: false
+			},
 			'key': {
 				value: message.key,
+				writable: false
+			},
+			'sourceChannel': {
+				value: message.sourceChannel,
 				writable: false
 			}
 		});
 	}
 
-	MessageEvent.prototype = Object.create(self.MessageEvent.prototype);
+	MessageEvent.prototype = Object.create(EventConstructor.prototype);
 	MessageEvent.prototype.constructor = MessageEvent;
 
 	module.exports = MessageEvent;
 	return module.exports;
 });
-$__System.registerDynamic('6', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('1a', [], true, function ($__require, exports, module) {
 	'use strict';
+
+	/**
+  * Message entity constructor
+  * @param {*} data - any data to be transfered
+  * @param {Object} [source] - source sent from
+  */
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	function Message(data, key) {
+	function Message(data, source) {
+		source = source || {};
 		this.data = data;
-		this.key = key;
+		this.key = source.key;
+		this.sourceChannel = source.name;
 	}
 
 	// Message.prototype.toJSON = function(){
@@ -191,7 +772,7 @@ $__System.registerDynamic('6', [], true, function ($__require, exports, module) 
 	module.exports = Message;
 	return module.exports;
 });
-$__System.registerDynamic('7', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('1d', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -202,7 +783,7 @@ $__System.registerDynamic('7', [], true, function ($__require, exports, module) 
 	};
 	return module.exports;
 });
-$__System.registerDynamic('8', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('1b', [], true, function ($__require, exports, module) {
 	'use strict';
 	/**
   * Creates a collection of all child frames/iframes windows objects. Takes into a count deeper nested frames.
@@ -230,59 +811,60 @@ $__System.registerDynamic('8', [], true, function ($__require, exports, module) 
 	};
 	return module.exports;
 });
-$__System.registerDynamic('9', [], true, function ($__require, exports, module) {
-	var define,
-	    global = this || self,
-	    GLOBAL = global;
-	var __filename = 'utils\\environment.js',
-	    __dirname = '';
-	(function (self, nodeGlobal, browserWindow, undefined) {
-		'use strict';
-
-		var window = self.window || browserWindow || {};
-		var location = window.location || {};
-		var global = nodeGlobal || ('top' in window ? window.top.global || {} : {}); //NodeJS `global`
-		var isNodeJs = 'require' in global && 'process' in global && global.global === global && typeof __dirname !== 'undefined'; //NodeJS context
-
-		//export
-		exports.window = window;
-		exports.global = global;
-		exports.location = location;
-		exports.isNodeJs = isNodeJs;
-		exports.undefined = undefined;
-	})(this, typeof global !== 'undefined' ? global : null, typeof window !== 'undefined' ? window : null);
-	return module.exports;
-});
-$__System.registerDynamic('a', ['5', '6', '7', '8', '9'], true, function ($__require, exports, module) {
+$__System.registerDynamic('1c', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var MessageEvent = $__require('5');
-	var Message = $__require('6');
-	var generateRandomKey = $__require('7');
-	var getAllChildWindows = $__require('8');
-	var environment = $__require('9');
+	var __filename = 'utils\\environment.js',
+	    __dirname = '';
+	!function (self, nodeGlobal, browserWindow, undefined) {
+		var window = self.window || browserWindow || {};
+		var location = window.location || {};
+		var global = nodeGlobal || ('top' in window ? window.top.global || {} : {}); //NodeJS `global`
+
+		var isNode = 'require' in global && 'process' in global && global.global === global && typeof __dirname !== 'undefined'; //NodeJS context
+
+		//export
+		exports.window = window;
+		exports.global = global;
+		exports.location = location;
+		exports.isNode = isNode;
+		exports.undefined = undefined;
+	}(this, typeof global !== 'undefined' ? global : null, typeof window !== 'undefined' ? window : null);
+	return module.exports;
+});
+$__System.registerDynamic('18', ['19', '1a', '1d', '1b', '1c'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var MessageEvent = $__require('19');
+	var Message = $__require('1a');
+	var generateRandomKey = $__require('1d');
+	var getAllChildWindows = $__require('1b');
+	var environment = $__require('1c');
 
 	var global = environment.global;
 
-	function Transport() {
+	function Transport(name) {
 		this.port = global.window;
 		this.origin = '*'; //location = global.window.location, location && (location.origin || (location.protocol + '//' + location.host)) || '*'
 		this.listeners = [];
+		this.name = name;
 		this.key = generateRandomKey();
 	}
 
 	Transport.prototype.send = function (data) {
 		var origin = this.origin;
-		var message = new Message(data, this.key);
+		var message = new Message(data, this);
 		var index = -1;
-		var browserWindow = global.window || {};
+		var browserWindow = this.port;
 		var topBrowserWindow = browserWindow.top;
 		var browserFrames = topBrowserWindow && [topBrowserWindow].concat(getAllChildWindows(topBrowserWindow)) || [];
 
-		//this.port.postMessage(message, origin) //!!!!!!!!!!!!!!!!!!!!
 		while (++index in browserFrames) {
 			try {
 				browserFrames[index].postMessage(message, origin);
@@ -303,10 +885,10 @@ $__System.registerDynamic('a', ['5', '6', '7', '8', '9'], true, function ($__req
 		var transport = this;
 		function listener(event) {
 			var messageEvent = new MessageEvent(event);
-			if ('key' in messageEvent && transport.key !== messageEvent.key) {
-				//skip events that was returned back or are not native
-				handler(messageEvent);
-			}
+			if ('key' in messageEvent && 'sourceChannel' in messageEvent && transport.name === messageEvent.sourceChannel && transport.key !== messageEvent.key //skip events that was returned back or are not native
+			) {
+					handler(messageEvent);
+				}
 		}
 		if (this.port && this.port.addEventListener) {
 			this.port.addEventListener('message', listener);
@@ -327,15 +909,22 @@ $__System.registerDynamic('a', ['5', '6', '7', '8', '9'], true, function ($__req
 	module.exports = Transport;
 	return module.exports;
 });
-$__System.registerDynamic('b', ['a'], true, function ($__require, exports, module) {
+$__System.registerDynamic('1e', ['1c', '17', '18'], true, function ($__require, exports, module) {
 	'use strict';
-
-	//var Transport = require('./broadcastchannel.transport.js')
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var Transport = $__require('a');
+	var environment = $__require('1c');
+
+	var Transport;
+
+	//Transport = require('./broadcastchannel.transport.js')
+	if (environment.isNode) {
+		Transport = $__require('17');
+	} else {
+		Transport = $__require('18');
+	}
 
 	function Channel(id) {
 		Transport.call(this, id);
@@ -347,19 +936,19 @@ $__System.registerDynamic('b', ['a'], true, function ($__require, exports, modul
 	module.exports = Channel;
 	return module.exports;
 });
-$__System.registerDynamic('1', ['4', 'b'], true, function ($__require, exports, module) {
+$__System.registerDynamic('1', ['4', '1e'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
 	var HandlersCollection = $__require('4');
-	var Channel = $__require('b');
+	var Channel = $__require('1e');
 
 	function CrossChannel(name) {
 		var crosschannel = this;
 		if (!arguments.length) {
-			throw new TypeError('Failed to construct \'CrossChannel\': 1 argument required, but only 0 present');
+			throw new TypeError('Failed to construct \'CrossChannel\': 1 argument required, but only 0 present.');
 		}
 		if (!(this instanceof CrossChannel)) {
 			throw new TypeError('Failed to construct \'CrossChannel\': Please use the \'new\' operator, this constructor cannot be called as a function.');

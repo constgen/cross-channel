@@ -1,8 +1,16 @@
 ﻿'use strict'
 
-//var Transport = require('./broadcastchannel.transport.js')
-var Transport = require('./postmessage.transport.js')
+var environment = require('../utils/environment.js')
 
+var Transport
+
+//Transport = require('./broadcastchannel.transport.js')
+if (environment.isNode) {
+	Transport = require('./nw.transport.js')
+}
+else {
+	Transport = require('./postmessage.transport.js')
+}
 
 function Channel (id){
 	Transport.call(this, id)

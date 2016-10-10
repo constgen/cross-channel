@@ -4,9 +4,20 @@
 	<meta charset="utf-8">
 	<title>Frame 1</title>
 
+	<style>
+		.red {
+			color: darkred;
+		}
+		.green {
+			color: darkgreen;
+		}
+	</style>
+
 	<script src="../node_modules/systemjs/dist/system.src.js"></script>
 	<script src="../system.config.js"></script>
 	<script>
+		var title = document.querySelector('title').textContent
+
 		System['import']('../src/index.js')
 			.then(function(CrossChannel){
 				window.CrossChannel = CrossChannel
@@ -16,22 +27,39 @@
 			}).then(listen)
 	
 		function listen(){
-			window.frame1Channel = new CrossChannel('cross-test')
-			frame1Channel.on('message', function(e){
-				var log = document.createElement('div')
-				console.info(document.body, e)
-				log.textContent = JSON.stringify(e.data)
-				document.body.appendChild(log)
-			})
+			window.redChannel = new CrossChannel('red')
+			window.greenChannel = new CrossChannel('green')
+			redChannel.on('message', handleRedMessageEvent)
+			greenChannel.on('message', handleGreenMessageEvent)
+		}
+		function log(color, text){
+			var log = document.createElement('div')
+			log.className = color
+			log.textContent = JSON.stringify(text)
+			document.body.appendChild(log)
 		}
 
-		function send(){
-			frame1Channel.postMessage({test: 'data from ' + document.querySelector('title').textContent})
+		function handleRedMessageEvent(e){
+			console.info(title, e)
+			log('red', e.data)
+		}
+		function handleGreenMessageEvent(e){
+			console.info(title, e)
+			log('green', e.data)
+		}
+
+
+		function sendRed(){
+			redChannel.postMessage({test: 'data from ' + title})
+		}
+		function sendGreen(){
+			greenChannel.postMessage({test: 'data from ' + title})
 		}
 	</script>
 </head>
 <body>
-	<button type="button" onclick="send()">Send</button>
+	<button class="red" type="button" onclick="sendRed()">Send</button>
+	<button class="green" type="button" onclick="sendGreen()">Send</button>
 	<br>
 	<iframe src="frame2.html"></iframe>
 </body>

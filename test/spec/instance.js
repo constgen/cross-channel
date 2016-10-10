@@ -4,6 +4,7 @@ var CrossChannel = require('../../src/index.js')
 
 var channel1
 var channel2
+var channel3
 var messageString = 'test message'
 var messageObject = {message: 'test'}
 var handler1
@@ -21,6 +22,7 @@ describe('instance', function () {
 		name = 'channel' + index
 		channel1 = new CrossChannel(name)		
 		channel2 = new CrossChannel(name)
+		channel3 = new CrossChannel(name + 'different')
 		spyOn(channel1, 'postMessage').and.callThrough()
 		spyOn(channel2, 'postMessage').and.callThrough()
 		handler1 = jasmine.createSpy('handler1')
@@ -42,6 +44,15 @@ describe('instance', function () {
 	})
 	it('doesn\'t listen "message" event on the same channel', function (done) {
 		channel1.addEventListener('message', handler1)
+		channel1.postMessage(messageString)
+
+		delay(function(){
+			expect(handler1).not.toHaveBeenCalled()
+			done()
+		})
+	})
+	it('sends messages only to channels with the same name', function (done) {
+		channel3.addEventListener('message', handler1)
 		channel1.postMessage(messageString)
 
 		delay(function(){
