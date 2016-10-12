@@ -15,6 +15,11 @@ var storage = global.sessionStorage // || globalStorage
 3. IE 8 doesn't have `key` and `newValue` properties in an event. if (document.documentMode < 9)
 4. In iOS event is not fired between tabs
 5. Old Firefox and IE may dispath event on the same context
+6. IE 10-11 dispatches event before storage modification and `newValue` is not new but old
+7. IE 10-11 work very bad with iframes
+8. IE 11 may dispatch event twice in an iframe
+
+A goof case https://github.com/nodeca/tabex
 */
 
 
@@ -26,6 +31,7 @@ function Transport (name){
 	this.key = generateRandomKey()
 }
 
+Transport.supported = Boolean(storage)
 Transport.STORAGE_KEY = '__cross-channel_message'
 Transport.EVENT_TYPE = 'storage'
 

@@ -54,6 +54,8 @@ function Transport(name) {
 	this.key = generateRandomKey()
 }
 
+Transport.supported = Boolean(global.window)
+
 //computed `this.port`
 Object.defineProperty(Transport.prototype, 'port', {
 	get: function () {

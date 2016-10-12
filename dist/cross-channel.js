@@ -609,6 +609,8 @@ $__System.registerDynamic('17', ['18', '19', '1a', '1b', '1c'], true, function (
 		this.key = generateRandomKey();
 	}
 
+	Transport.supported = Boolean(global.window);
+
 	//computed `this.port`
 	Object.defineProperty(Transport.prototype, 'port', {
 		get: function () {
@@ -635,7 +637,7 @@ $__System.registerDynamic('17', ['18', '19', '1a', '1b', '1c'], true, function (
 
 	Transport.prototype.onMessageEvent = function (handler) {
 		var transport = this;
-		var port2 = this.port2;
+		var port = this.port;
 		function listener(e) {
 			var window = this;
 			var nativeMessageEventWorks = window.MessageEvent && window.MessageEvent.length;
@@ -648,8 +650,8 @@ $__System.registerDynamic('17', ['18', '19', '1a', '1b', '1c'], true, function (
 					handler(messageEvent);
 				}
 		}
-		port2.removeEventListener('message', this.listener);
-		port2.addEventListener('message', listener);
+		port.removeEventListener('message', this.listener);
+		port.addEventListener('message', listener);
 		this.listener = listener;
 	};
 
@@ -848,6 +850,21 @@ $__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function (
 	var global = environment.global;
 	var window = environment.window;
 
+	/*
+ Known issues:
+ 1. Safari detection of a structured clonning support when DOM is sent. String(e.data).indexOf("Null") !== -1. See https://gist.github.com/ryanseddon/4583494
+ 2. IE8's events are triggered synchronously, which may lead to to unexpected results.
+ 3. Firefox 41 and below do not support sending File/Blob objects see bug
+ 4. Internet Explorer 8 and 9, and Firefox versions 6.0 (Opera says that 3.6) and below only support strings as postMessage's message. References: https://dev.opera.com/articles/view/window-postmessage-messagechannel/#crossdoc
+ 5. Probbaly: IE<=9 doesn't like you to call postMessage as soon as page loads. Use a setTimeout to wait one or two seconds before calling postMessage.
+ 6. IE8-11 doen't support postMessage on different tabs and origins.
+ 7. Worker structured clonning support (from MDN): Chrome >=13, Firefox >=8, IE>=10.0, Opera >=11.5, Safari>=6
+ 
+ Todo:
+ 1. Add `window.opener` messaging
+ 
+ */
+
 	function Transport(name) {
 		this.port1 = window.top;
 		this.port2 = global;
@@ -856,6 +873,8 @@ $__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function (
 		this.name = name;
 		this.key = generateRandomKey();
 	}
+
+	Transport.supported = Boolean(global.postMessage);
 
 	Transport.prototype.send = function (data) {
 		var origin = this.origin;
@@ -868,6 +887,11 @@ $__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function (
 			try {
 				childWindows[index].postMessage(message, origin);
 			} catch (err) {
+				// Structured clone error
+				err.name === 'DataCloneError';
+				err.code === err.DATA_CLONE_ERR;
+
+				//API error
 				console.error(err, data);
 				//var e;
 				//e = win.document.createEvent('Event')

@@ -2,10 +2,16 @@
 
 var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
+var environment = require('../utils/environment.js')
+
+var global = environment.global
 
 function Transport (name){
-	this.port = new BroadcastChannel(name)
+	this.port = new global.BroadcastChannel(name)
 }
+
+Transport.supported = Boolean(global.BroadcastChannel)
+Transport.EVENT_TYPE = 'message'
 
 Transport.prototype.send = function(data){
 	var message = new Message(data)
@@ -13,7 +19,7 @@ Transport.prototype.send = function(data){
 }
 
 Transport.prototype.onMessageEvent = function(handler){
-	this.port.addEventListener('message', function(event){
+	this.port.addEventListener(Transport.EVENT_TYPE, function(event){
 		var messageEvent = new MessageEvent(event)
 		handler(messageEvent)
 	})
