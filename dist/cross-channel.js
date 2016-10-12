@@ -8,106 +8,6 @@ $__System.registerDynamic('2', [], true, function ($__require, exports, module) 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	module.exports = function () {
-		return function () {};
-	};
-	return module.exports;
-});
-$__System.registerDynamic('3', ['2'], true, function ($__require, exports, module) {
-	'use strict';
-
-	var define,
-	    global = this || self,
-	    GLOBAL = global;
-	var createNoop = $__require('2');
-
-	function Handler(callback, identifier) {
-		callback = callback || createNoop();
-		if (callback[identifier]) {
-			return callback[identifier];
-		} else {
-			callback[identifier] = this;
-			this.callback = callback;
-			this.next = undefined;
-			this.prev = undefined;
-		}
-	}
-
-	Handler.prototype.call = function (event) {
-		var callback = this.callback;
-		callback(event);
-	};
-
-	module.exports = Handler;
-	return module.exports;
-});
-$__System.registerDynamic('4', ['5', '3'], true, function ($__require, exports, module) {
-	'use strict';
-
-	var define,
-	    global = this || self,
-	    GLOBAL = global;
-	var Symbol = $__require('5');
-	var Handler = $__require('3');
-
-	function HandlersCollection() {
-		this.head = new Handler();
-		this.tail = new Handler();
-		this.head.next = this.tail;
-		this.tail.prev = this.head;
-		this.identifier = Symbol();
-	}
-
-	HandlersCollection.prototype.handle = function (event) {
-		var handler = this.head.next;
-		while (handler) {
-			handler.call(event);
-			handler = handler.next;
-		}
-		//handler.call(event)
-	};
-
-	HandlersCollection.prototype.push = function (callback) {
-		var handler = new Handler(callback, this.identifier);
-		var last = this.tail.prev;
-
-		if (handler.next) {
-			//is already in collection
-			return;
-		}
-		handler.next = this.tail;
-		this.tail.prev = handler;
-		handler.prev = last;
-		last.next = handler;
-	};
-
-	HandlersCollection.prototype.remove = function (callback) {
-		var handler = new Handler(callback, this.identifier);
-		var prev = handler.prev;
-		var next = handler.next;
-
-		if (prev) {
-			prev.next = next;
-		}
-		if (next) {
-			next.prev = prev;
-		}
-	};
-
-	HandlersCollection.prototype.empty = function () {
-		this.head.next = this.tail;
-		this.tail.prev = this.head;
-	};
-
-	module.exports = HandlersCollection;
-	return module.exports;
-});
-$__System.registerDynamic('6', [], true, function ($__require, exports, module) {
-	'use strict';
-
-	var define,
-	    global = this || self,
-	    GLOBAL = global;
 	var validTypes = { object: true, symbol: true };
 
 	module.exports = function () {
@@ -129,7 +29,7 @@ $__System.registerDynamic('6', [], true, function ($__require, exports, module) 
 	};
 	return module.exports;
 });
-$__System.registerDynamic('7', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('3', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -145,7 +45,7 @@ $__System.registerDynamic('7', [], true, function ($__require, exports, module) 
 	};
 	return module.exports;
 });
-$__System.registerDynamic('8', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('4', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -161,7 +61,7 @@ $__System.registerDynamic('8', [], true, function ($__require, exports, module) 
 	};
 	return module.exports;
 });
-$__System.registerDynamic('9', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('5', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -174,16 +74,16 @@ $__System.registerDynamic('9', [], true, function ($__require, exports, module) 
 	};
 	return module.exports;
 });
-$__System.registerDynamic('a', ['8', '9'], true, function ($__require, exports, module) {
+$__System.registerDynamic('6', ['4', '5'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	module.exports = $__require('8')() ? Object.keys : $__require('9');
+	module.exports = $__require('4')() ? Object.keys : $__require('5');
 	return module.exports;
 });
-$__System.registerDynamic("b", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("7", [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -195,14 +95,14 @@ $__System.registerDynamic("b", [], true, function ($__require, exports, module) 
 	};
 	return module.exports;
 });
-$__System.registerDynamic('c', ['a', 'b'], true, function ($__require, exports, module) {
+$__System.registerDynamic('8', ['6', '7'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var keys = $__require('a'),
-	    value = $__require('b'),
+	var keys = $__require('6'),
+	    value = $__require('7'),
 	    max = Math.max;
 
 	module.exports = function (dest, src /*, …srcn*/) {
@@ -227,16 +127,16 @@ $__System.registerDynamic('c', ['a', 'b'], true, function ($__require, exports, 
 	};
 	return module.exports;
 });
-$__System.registerDynamic('d', ['7', 'c'], true, function ($__require, exports, module) {
+$__System.registerDynamic('9', ['3', '8'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	module.exports = $__require('7')() ? Object.assign : $__require('c');
+	module.exports = $__require('3')() ? Object.assign : $__require('8');
 	return module.exports;
 });
-$__System.registerDynamic('e', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('a', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -260,7 +160,7 @@ $__System.registerDynamic('e', [], true, function ($__require, exports, module) 
 	};
 	return module.exports;
 });
-$__System.registerDynamic('f', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('b', [], true, function ($__require, exports, module) {
   // Deprecated
 
   'use strict';
@@ -273,7 +173,7 @@ $__System.registerDynamic('f', [], true, function ($__require, exports, module) 
   };
   return module.exports;
 });
-$__System.registerDynamic('10', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('c', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -287,7 +187,7 @@ $__System.registerDynamic('10', [], true, function ($__require, exports, module)
 	};
 	return module.exports;
 });
-$__System.registerDynamic('11', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('d', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -300,25 +200,25 @@ $__System.registerDynamic('11', [], true, function ($__require, exports, module)
 	};
 	return module.exports;
 });
-$__System.registerDynamic('12', ['10', '11'], true, function ($__require, exports, module) {
+$__System.registerDynamic('e', ['c', 'd'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	module.exports = $__require('10')() ? String.prototype.contains : $__require('11');
+	module.exports = $__require('c')() ? String.prototype.contains : $__require('d');
 	return module.exports;
 });
-$__System.registerDynamic('13', ['d', 'e', 'f', '12'], true, function ($__require, exports, module) {
+$__System.registerDynamic('f', ['9', 'a', 'b', 'e'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var assign = $__require('d'),
-	    normalizeOpts = $__require('e'),
-	    isCallable = $__require('f'),
-	    contains = $__require('12'),
+	var assign = $__require('9'),
+	    normalizeOpts = $__require('a'),
+	    isCallable = $__require('b'),
+	    contains = $__require('e'),
 	    d;
 
 	d = module.exports = function (dscr, value /*, options*/) {
@@ -377,7 +277,7 @@ $__System.registerDynamic('13', ['d', 'e', 'f', '12'], true, function ($__requir
 	};
 	return module.exports;
 });
-$__System.registerDynamic('14', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('10', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -392,13 +292,13 @@ $__System.registerDynamic('14', [], true, function ($__require, exports, module)
 	};
 	return module.exports;
 });
-$__System.registerDynamic('15', ['14'], true, function ($__require, exports, module) {
+$__System.registerDynamic('11', ['10'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var isSymbol = $__require('14');
+	var isSymbol = $__require('10');
 
 	module.exports = function (value) {
 		if (!isSymbol(value)) throw new TypeError(value + " is not a symbol");
@@ -406,7 +306,7 @@ $__System.registerDynamic('15', ['14'], true, function ($__require, exports, mod
 	};
 	return module.exports;
 });
-$__System.registerDynamic('16', ['13', '15'], true, function ($__require, exports, module) {
+$__System.registerDynamic('12', ['f', '11'], true, function ($__require, exports, module) {
 	// ES2015 Symbol polyfill for environments that do not support it (or partially support it)
 
 	'use strict';
@@ -414,8 +314,8 @@ $__System.registerDynamic('16', ['13', '15'], true, function ($__require, export
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var d = $__require('13'),
-	    validateSymbol = $__require('15'),
+	var d = $__require('f'),
+	    validateSymbol = $__require('11'),
 	    create = Object.create,
 	    defineProperties = Object.defineProperties,
 	    defineProperty = Object.defineProperty,
@@ -539,25 +439,126 @@ $__System.registerDynamic('16', ['13', '15'], true, function ($__require, export
 	defineProperty(HiddenSymbol.prototype, SymbolPolyfill.toPrimitive, d('c', SymbolPolyfill.prototype[SymbolPolyfill.toPrimitive]));
 	return module.exports;
 });
-$__System.registerDynamic('5', ['6', '16'], true, function ($__require, exports, module) {
+$__System.registerDynamic('13', ['2', '12'], true, function ($__require, exports, module) {
   'use strict';
 
   var define,
       global = this || self,
       GLOBAL = global;
-  module.exports = $__require('6')() ? Symbol : $__require('16');
+  module.exports = $__require('2')() ? Symbol : $__require('12');
   return module.exports;
 });
-$__System.registerDynamic('17', ['5', '18', '19', '1a', '1b', '1c'], true, function ($__require, exports, module) {
+$__System.registerDynamic('14', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var Symbol = $__require('5');
-	var PostMessageTransport = $__require('18');
-	var MessageEvent = $__require('19');
-	var Message = $__require('1a');
+	module.exports = function () {
+		return function () {};
+	};
+	return module.exports;
+});
+$__System.registerDynamic('15', ['14'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var createNoop = $__require('14');
+
+	function Handler(callback, identifier) {
+		callback = callback || createNoop();
+		if (callback[identifier]) {
+			return callback[identifier];
+		} else {
+			callback[identifier] = this;
+			this.callback = callback;
+			this.next = undefined;
+			this.prev = undefined;
+		}
+	}
+
+	Handler.prototype.call = function (event) {
+		var callback = this.callback;
+		callback(event);
+	};
+
+	module.exports = Handler;
+	return module.exports;
+});
+$__System.registerDynamic('16', ['13', '15'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var Symbol = $__require('13');
+	var Handler = $__require('15');
+
+	function HandlersCollection() {
+		this.head = new Handler();
+		this.tail = new Handler();
+		this.head.next = this.tail;
+		this.tail.prev = this.head;
+		this.identifier = Symbol();
+	}
+
+	HandlersCollection.prototype.handle = function (event) {
+		var handler = this.head.next;
+		while (handler) {
+			handler.call(event);
+			handler = handler.next;
+		}
+		//handler.call(event)
+	};
+
+	HandlersCollection.prototype.push = function (callback) {
+		var handler = new Handler(callback, this.identifier);
+		var last = this.tail.prev;
+
+		if (handler.next) {
+			//is already in collection
+			return;
+		}
+		handler.next = this.tail;
+		this.tail.prev = handler;
+		handler.prev = last;
+		last.next = handler;
+	};
+
+	HandlersCollection.prototype.remove = function (callback) {
+		var handler = new Handler(callback, this.identifier);
+		var prev = handler.prev;
+		var next = handler.next;
+
+		if (prev) {
+			prev.next = next;
+		}
+		if (next) {
+			next.prev = prev;
+		}
+	};
+
+	HandlersCollection.prototype.empty = function () {
+		this.head.next = this.tail;
+		this.tail.prev = this.head;
+	};
+
+	module.exports = HandlersCollection;
+	return module.exports;
+});
+$__System.registerDynamic('17', ['18', '19', '1a', '1b', '1c'], true, function ($__require, exports, module) {
+	'use strict';
+
+	//var Symbol = require('es6-symbol')
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var MessageEvent = $__require('18');
+	var Message = $__require('19');
+	var generateRandomKey = $__require('1a');
 	var getAllChildWindows = $__require('1b');
 	var environment = $__require('1c');
 
@@ -601,12 +602,13 @@ $__System.registerDynamic('17', ['5', '18', '19', '1a', '1b', '1c'], true, funct
 	// 	});
 	// });
 
-	function Transport(id) {
-		PostMessageTransport.call(this, id);
-		delete this.port; //clear reference to a window
+	function Transport(name) {
+		this.origin = '*'; //location = window.location, location && (location.origin || (location.protocol + '//' + location.host)) || '*'
+		this.listener = null;
+		this.name = name;
+		this.key = generateRandomKey();
 	}
-	Transport.prototype = Object.create(PostMessageTransport.prototype);
-	Transport.prototype.constructor = Transport;
+
 	//computed `this.port`
 	Object.defineProperty(Transport.prototype, 'port', {
 		get: function () {
@@ -618,7 +620,7 @@ $__System.registerDynamic('17', ['5', '18', '19', '1a', '1b', '1c'], true, funct
 	Transport.prototype.send = function (data) {
 		var origin = this.origin;
 		var message = new Message(data, this);
-		var browserWindow = this.port || {};
+		var browserWindow = this.port;
 		var topBrowserWindow = browserWindow.top;
 		var browserFrames = topBrowserWindow && [topBrowserWindow].concat(getAllChildWindows(topBrowserWindow)) || [];
 
@@ -633,37 +635,33 @@ $__System.registerDynamic('17', ['5', '18', '19', '1a', '1b', '1c'], true, funct
 
 	Transport.prototype.onMessageEvent = function (handler) {
 		var transport = this;
+		var port2 = this.port2;
 		function listener(e) {
 			var window = this;
 			var nativeMessageEventWorks = window.MessageEvent && window.MessageEvent.length;
 			var event = nativeMessageEventWorks ? new window.MessageEvent('message', e) : e; //fixes crashes in NWjs, when read `e.data`
 			var messageEvent = new MessageEvent(event);
 
-			if ('key' in messageEvent && 'sourceChannel' in messageEvent && transport.name === messageEvent.sourceChannel && transport.key !== messageEvent.key //skip events that was returned back or are not native
+			if ('key' in messageEvent && 'sourceChannel' in messageEvent && transport.name === messageEvent.sourceChannel //events on the same channel
+			&& transport.key !== messageEvent.key //skip returned back events
 			) {
 					handler(messageEvent);
 				}
 		}
-		if (this.port && this.port.addEventListener) {
-			this.port.addEventListener('message', listener);
-			this.listeners.push(listener);
-		}
+		port2.removeEventListener('message', this.listener);
+		port2.addEventListener('message', listener);
+		this.listener = listener;
 	};
 
-	// Transport.prototype.close = function () {
-	// 	var listeners = this.listeners
-	// 	var port = this.port
-	// 	var index = listeners.length
-	// 	while (index--) {
-	// 		port.removeEventListener('message', listeners[index])
-	// 	}
-	// 	this.listeners.length = 0
-	// }
+	Transport.prototype.close = function () {
+		this.port.removeEventListener('message', this.listener);
+		this.listener = null;
+	};
 
 	module.exports = Transport;
 	return module.exports;
 });
-$__System.registerDynamic('19', ['1c'], true, function ($__require, exports, module) {
+$__System.registerDynamic('18', ['1c'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -739,7 +737,7 @@ $__System.registerDynamic('19', ['1c'], true, function ($__require, exports, mod
 	module.exports = MessageEvent;
 	return module.exports;
 });
-$__System.registerDynamic('1a', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('19', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	/**
@@ -772,7 +770,7 @@ $__System.registerDynamic('1a', [], true, function ($__require, exports, module)
 	module.exports = Message;
 	return module.exports;
 });
-$__System.registerDynamic('1d', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('1a', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -835,24 +833,26 @@ $__System.registerDynamic('1c', [], true, function ($__require, exports, module)
 	}(this, typeof global !== 'undefined' ? global : null, typeof window !== 'undefined' ? window : null);
 	return module.exports;
 });
-$__System.registerDynamic('18', ['19', '1a', '1d', '1b', '1c'], true, function ($__require, exports, module) {
+$__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var MessageEvent = $__require('19');
-	var Message = $__require('1a');
-	var generateRandomKey = $__require('1d');
+	var MessageEvent = $__require('18');
+	var Message = $__require('19');
+	var generateRandomKey = $__require('1a');
 	var getAllChildWindows = $__require('1b');
 	var environment = $__require('1c');
 
 	var global = environment.global;
+	var window = environment.window;
 
 	function Transport(name) {
-		this.port = global.window;
-		this.origin = '*'; //location = global.window.location, location && (location.origin || (location.protocol + '//' + location.host)) || '*'
-		this.listeners = [];
+		this.port1 = window.top;
+		this.port2 = global;
+		this.origin = '*'; //location = window.location, location && (location.origin || (location.protocol + '//' + location.host)) || '*'
+		this.listener = null;
 		this.name = name;
 		this.key = generateRandomKey();
 	}
@@ -860,14 +860,13 @@ $__System.registerDynamic('18', ['19', '1a', '1d', '1b', '1c'], true, function (
 	Transport.prototype.send = function (data) {
 		var origin = this.origin;
 		var message = new Message(data, this);
+		var childWindows = getAllChildWindows(this.port1);
 		var index = -1;
-		var browserWindow = this.port;
-		var topBrowserWindow = browserWindow.top;
-		var browserFrames = topBrowserWindow && [topBrowserWindow].concat(getAllChildWindows(topBrowserWindow)) || [];
 
-		while (++index in browserFrames) {
+		this.port1.postMessage(message, origin);
+		while (++index in childWindows) {
 			try {
-				browserFrames[index].postMessage(message, origin);
+				childWindows[index].postMessage(message, origin);
 			} catch (err) {
 				console.error(err, data);
 				//var e;
@@ -883,33 +882,29 @@ $__System.registerDynamic('18', ['19', '1a', '1d', '1b', '1c'], true, function (
 
 	Transport.prototype.onMessageEvent = function (handler) {
 		var transport = this;
+		var port2 = this.port2;
 		function listener(event) {
 			var messageEvent = new MessageEvent(event);
-			if ('key' in messageEvent && 'sourceChannel' in messageEvent && transport.name === messageEvent.sourceChannel && transport.key !== messageEvent.key //skip events that was returned back or are not native
+			if ('key' in messageEvent && 'sourceChannel' in messageEvent && transport.name === messageEvent.sourceChannel //events on the same channel
+			&& transport.key !== messageEvent.key //skip returned back events
 			) {
 					handler(messageEvent);
 				}
 		}
-		if (this.port && this.port.addEventListener) {
-			this.port.addEventListener('message', listener);
-			this.listeners.push(listener);
-		}
+		port2.removeEventListener('message', this.listener);
+		port2.addEventListener('message', listener);
+		this.listener = listener;
 	};
 
 	Transport.prototype.close = function () {
-		var listeners = this.listeners;
-		var port = this.port;
-		var index = listeners.length;
-		while (index--) {
-			port.removeEventListener('message', listeners[index]);
-		}
-		this.listeners.length = 0;
+		this.port2.removeEventListener('message', this.listener);
+		this.listener = null;
 	};
 
 	module.exports = Transport;
 	return module.exports;
 });
-$__System.registerDynamic('1e', ['1c', '17', '18'], true, function ($__require, exports, module) {
+$__System.registerDynamic('1e', ['1c', '17', '1d'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -919,12 +914,13 @@ $__System.registerDynamic('1e', ['1c', '17', '18'], true, function ($__require, 
 
 	var Transport;
 
-	//Transport = require('./broadcastchannel.transport.js')
 	if (environment.isNode) {
 		Transport = $__require('17');
 	} else {
-		Transport = $__require('18');
+		Transport = $__require('1d');
 	}
+	//Transport = require('./experimental/broadcastchannel.transport.js')
+	//Transport = require('./experimental/storage.transport.js')
 
 	function Channel(id) {
 		Transport.call(this, id);
@@ -936,13 +932,13 @@ $__System.registerDynamic('1e', ['1c', '17', '18'], true, function ($__require, 
 	module.exports = Channel;
 	return module.exports;
 });
-$__System.registerDynamic('1', ['4', '1e'], true, function ($__require, exports, module) {
+$__System.registerDynamic('1', ['16', '1e'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var HandlersCollection = $__require('4');
+	var HandlersCollection = $__require('16');
 	var Channel = $__require('1e');
 
 	function CrossChannel(name) {

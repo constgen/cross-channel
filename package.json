@@ -2,7 +2,7 @@
 	"name": "cross-channel",
 	"private": true,
 	"description": "Cross window communication messaging",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"license": "MIT",
 	"author": "constgen",
 	"main": "src/index.js",

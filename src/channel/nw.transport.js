@@ -1,9 +1,9 @@
 'use strict'
 
-var Symbol = require('es6-symbol')
-var PostMessageTransport = require('./postmessage.transport.js')
+//var Symbol = require('es6-symbol')
 var MessageEvent = require('../types/message-event.js')
 var Message = require('../types/message.js')
+var generateRandomKey = require('../utils/generate-random-key.js')
 var getAllChildWindows = require('../utils/get-all-child-windows.js')
 var environment = require('../utils/environment.js')
 
@@ -47,12 +47,13 @@ function getNWWindowThen(callback) {
 // 	});
 // });
 
-function Transport(id) {
-	PostMessageTransport.call(this, id)
-	delete this.port //clear reference to a window
+function Transport(name) {
+	this.origin = '*' //location = window.location, location && (location.origin || (location.protocol + '//' + location.host)) || '*'
+	this.listener = null
+	this.name = name
+	this.key = generateRandomKey()
 }
-Transport.prototype = Object.create(PostMessageTransport.prototype)
-Transport.prototype.constructor = Transport
+
 //computed `this.port`
 Object.defineProperty(Transport.prototype, 'port', {
 	get: function () {
@@ -64,7 +65,7 @@ Object.defineProperty(Transport.prototype, 'port', {
 Transport.prototype.send = function (data) {
 	var origin = this.origin
 	var message = new Message(data, this)
-	var browserWindow = this.port || {}
+	var browserWindow = this.port
 	var topBrowserWindow = browserWindow.top
 	var browserFrames = topBrowserWindow && [topBrowserWindow].concat(getAllChildWindows(topBrowserWindow)) || [];
 
@@ -79,6 +80,7 @@ Transport.prototype.send = function (data) {
 
 Transport.prototype.onMessageEvent = function (handler) {
 	var transport = this
+	var port = this.port
 	function listener(e) {
 		var window = this
 		var nativeMessageEventWorks = window.MessageEvent && window.MessageEvent.length
@@ -88,26 +90,20 @@ Transport.prototype.onMessageEvent = function (handler) {
 		if (
 			('key' in messageEvent) 
 			&& ('sourceChannel' in messageEvent)
-			&& transport.name === messageEvent.sourceChannel
-			&& transport.key !== messageEvent.key //skip events that was returned back or are not native
+			&& transport.name === messageEvent.sourceChannel //events on the same channel
+			&& transport.key !== messageEvent.key //skip returned back events
 		) { 
 			handler(messageEvent)
 		}
 	}
-	if (this.port && this.port.addEventListener) {
-		this.port.addEventListener('message', listener)
-		this.listeners.push(listener)
-	}
+	port.removeEventListener('message', this.listener)
+	port.addEventListener('message', listener)
+	this.listener = listener
 }
 
-// Transport.prototype.close = function () {
-// 	var listeners = this.listeners
-// 	var port = this.port
-// 	var index = listeners.length
-// 	while (index--) {
-// 		port.removeEventListener('message', listeners[index])
-// 	}
-// 	this.listeners.length = 0
-// }
+Transport.prototype.close = function () {
+	this.port.removeEventListener('message', this.listener)
+	this.listener = null
+}
 
 module.exports = Transport

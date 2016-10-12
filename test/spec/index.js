@@ -5,7 +5,7 @@ var packageManifest = require('../../package.json')
 
 var channel
 
-describe(packageManifest.name, function () {
+describe('instance', function () {
 	beforeEach(function () {
 		channel = new CrossChannel('test-index')
 	})

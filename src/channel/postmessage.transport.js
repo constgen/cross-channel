@@ -7,11 +7,13 @@ var getAllChildWindows = require('../utils/get-all-child-windows.js')
 var environment = require('../utils/environment.js')
 
 var global = environment.global
+var window = environment.window
 
 function Transport(name) {
-	this.port = global.window
-	this.origin = '*' //location = global.window.location, location && (location.origin || (location.protocol + '//' + location.host)) || '*'
-	this.listeners = []
+	this.port1 = window.top
+	this.port2 = global
+	this.origin = '*' //location = window.location, location && (location.origin || (location.protocol + '//' + location.host)) || '*'
+	this.listener = null
 	this.name = name
 	this.key = generateRandomKey()
 }
@@ -19,14 +21,13 @@ function Transport(name) {
 Transport.prototype.send = function (data) {
 	var origin = this.origin
 	var message = new Message(data, this)
+	var childWindows = getAllChildWindows(this.port1)
 	var index = -1
-	var browserWindow = this.port
-	var topBrowserWindow = browserWindow.top
-	var browserFrames = topBrowserWindow && [topBrowserWindow].concat(getAllChildWindows(topBrowserWindow)) || [];
 
-	while (++index in browserFrames) {
+	this.port1.postMessage(message, origin)
+	while (++index in childWindows) {
 		try {
-			browserFrames[index].postMessage(message, origin)
+			childWindows[index].postMessage(message, origin)
 		} catch (err) {
 			console.error(err, data);
 			//var e;
@@ -42,31 +43,26 @@ Transport.prototype.send = function (data) {
 
 Transport.prototype.onMessageEvent = function (handler) {
 	var transport = this
+	var port2 = this.port2
 	function listener(event) {
 		var messageEvent = new MessageEvent(event)
 		if (
 			('key' in messageEvent) 
 			&& ('sourceChannel' in messageEvent)
-			&& transport.name === messageEvent.sourceChannel
-			&& transport.key !== messageEvent.key //skip events that was returned back or are not native
+			&& transport.name === messageEvent.sourceChannel //events on the same channel
+			&& transport.key !== messageEvent.key //skip returned back events
 		) { 
 			handler(messageEvent)
 		}
 	}
-	if (this.port && this.port.addEventListener) {
-		this.port.addEventListener('message', listener)
-		this.listeners.push(listener)
-	}
+	port2.removeEventListener('message', this.listener)
+	port2.addEventListener('message', listener)
+	this.listener = listener
 }
 
 Transport.prototype.close = function () {
-	var listeners = this.listeners
-	var port = this.port
-	var index = listeners.length
-	while (index--) {
-		port.removeEventListener('message', listeners[index])
-	}
-	this.listeners.length = 0
+	this.port2.removeEventListener('message', this.listener)
+	this.listener = null
 }
 
 

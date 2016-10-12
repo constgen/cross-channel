@@ -15,7 +15,7 @@ function delay(callback){
 	return setTimeout(callback, TIMEOUT)
 }
 
-describe('instance', function () {
+describe('channel', function () {
 	var index = 0
 	var name 
 	beforeEach(function () {
@@ -57,6 +57,17 @@ describe('instance', function () {
 
 		delay(function(){
 			expect(handler1).not.toHaveBeenCalled()
+			done()
+		})
+	})
+	it('handles several messages in sent one by one', function (done) {
+		channel1.addEventListener('message', handler1)
+		channel2.postMessage(messageObject)
+		channel2.postMessage(messageString)
+		channel2.postMessage(messageString)
+
+		delay(function(){
+			expect(handler1.calls.count()).toEqual(3)
 			done()
 		})
 	})
@@ -103,6 +114,16 @@ describe('instance', function () {
 			var eventData = handler1.calls.mostRecent().args[0].data
 			expect(eventData).not.toBe(messageObject)
 			expect(eventData).toEqual(messageObject)
+			done()
+		})
+	})
+	it('can send undefined messages', function (done) {
+		channel1.addEventListener('message', handler1)
+		channel2.postMessage(undefined)
+
+		delay(function(){
+			var eventData = handler1.calls.mostRecent().args[0].data
+			expect(eventData).toEqual(undefined)
 			done()
 		})
 	})

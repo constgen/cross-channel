@@ -1,10 +1,10 @@
 'use strict'
 
-var MessageEvent = require('../types/message-event.js')
-var Message = require('../types/message.js')
+var MessageEvent = require('../../types/message-event.js')
+var Message = require('../../types/message.js')
 
-function Transport (id){
-	this.port = new BroadcastChannel(id)
+function Transport (name){
+	this.port = new BroadcastChannel(name)
 }
 
 Transport.prototype.send = function(data){
@@ -22,6 +22,5 @@ Transport.prototype.onMessageEvent = function(handler){
 Transport.prototype.close = function(){
 	this.port.close()
 }
-
 
 module.exports = Transport
