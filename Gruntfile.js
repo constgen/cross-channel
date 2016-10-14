@@ -1,11 +1,12 @@
+'use strict'
+
 module.exports = function (grunt) {
-	var DOC_DIR = 'doc',
-		SRC_DIR = 'src',
-		TEST_DIR = 'test',
-		BUILD_DIR = 'dist',
- 		TASKS_DIR = 'tasks',
-		DEMO_DIR = 'demo',
-		MODULE_NAME = 'cross-channel';
+	var DOC_DIR = 'doc'
+	var SRC_DIR = 'src'
+	var TEST_DIR = 'test'
+	var BUILD_DIR = 'dist'
+	var DEMO_DIR = 'demo'
+	var MODULE_FILE_NAME = 'cross-channel'
 
 	grunt.initConfig({
 		watch: {
@@ -27,7 +28,7 @@ module.exports = function (grunt) {
 		jshint: {
 			dev: {
 				options: {
-					jshintrc: TASKS_DIR + '/.jshintrc'
+					jshintrc: '.jshintrc'
 				},
 				src: [
 					SRC_DIR + '/**/*.js'
@@ -62,11 +63,11 @@ module.exports = function (grunt) {
 		systemjs: {
 			build: {
 				src: SRC_DIR + '/index.js',
-				dest: BUILD_DIR + '/' + MODULE_NAME + '.js',
+				dest: BUILD_DIR + '/' + MODULE_FILE_NAME + '.js',
 				options: {
 					baseURL: SRC_DIR,
 					config: 'system.config.js',
-					type: 'build', //build, bundle
+					type: 'build',
 					format: 'umd',
 					minify: false,
 					sourceMaps: true
@@ -74,14 +75,13 @@ module.exports = function (grunt) {
 			},
 			buildmin: {
 				src: SRC_DIR + '/index.js',
-				dest: BUILD_DIR + '/'+ MODULE_NAME + '.min.js',
+				dest: BUILD_DIR + '/'+ MODULE_FILE_NAME + '.min.js',
 				options: {
 					baseURL: SRC_DIR,
 					config: 'system.config.js',
-					type: 'build', //build, bundle
+					type: 'build',
 					format: 'umd',
 					minify: true,
-					//mangle: true,
 					sourceMaps: true
 				}
 			},
@@ -91,25 +91,25 @@ module.exports = function (grunt) {
 				options: {
 					baseURL: TEST_DIR,
 					config: 'system.config.js',
-					type: 'build', //build, bundle
+					type: 'build',
 					format: 'umd',
 					minify: false
 				}
 			}
 		}
-	});
+	})
 
-	grunt.loadNpmTasks('grunt-contrib-jshint');
-	grunt.loadNpmTasks('grunt-contrib-watch');
-	grunt.loadNpmTasks('grunt-jsdoc');
-	grunt.loadNpmTasks('grunt-contrib-clean');
-	grunt.loadNpmTasks('grunt-contrib-jasmine');
-	grunt.loadNpmTasks('grunt-systemjs-bundler');
+	grunt.loadNpmTasks('grunt-contrib-jshint')
+	grunt.loadNpmTasks('grunt-contrib-watch')
+	grunt.loadNpmTasks('grunt-jsdoc')
+	grunt.loadNpmTasks('grunt-contrib-clean')
+	grunt.loadNpmTasks('grunt-contrib-jasmine')
+	grunt.loadNpmTasks('grunt-systemjs-bundler')
 
 
-	grunt.registerTask('live', ['watch']);
-	grunt.registerTask('code', ['jshint:dev']);
-	grunt.registerTask('doc', ['clean:doc', 'jsdoc']);
-	grunt.registerTask('test', ['systemjs:test', 'jasmine', 'clean:test']);
-	grunt.registerTask('build', ['clean:build', 'systemjs:build', 'systemjs:buildmin']);
+	grunt.registerTask('live', ['watch'])
+	grunt.registerTask('code', ['jshint:dev'])
+	grunt.registerTask('doc', ['clean:doc', 'jsdoc'])
+	grunt.registerTask('test', ['systemjs:test', 'jasmine', 'clean:test'])
+	grunt.registerTask('build', ['clean:build', 'systemjs:build', 'systemjs:buildmin'])
 };
