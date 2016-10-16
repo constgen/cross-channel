@@ -1,10 +1,10 @@
 {
 	"name": "cross-channel",
-	"private": true,
+	"private": false,
 	"description": "Cross window communication messaging",
 	"version": "0.4.0",
 	"license": "MIT",
-	"author": "constgen",
+	"author": "Constantine Genchevsky",
 	"main": "src/index.js",
 	"repository": {
 		"type": "git",
@@ -15,7 +15,8 @@
 		"messaging",
 		"broadcast",
 		"channel",
-		"cross"
+		"cross",
+		"interprocess"
 	],
 	"dependencies": {
 		"es6-symbol": "3.1.0"
@@ -28,7 +29,6 @@
 		"grunt-contrib-jasmine": "1.0.3",
 		"grunt-contrib-clean": "1.0.0",
 		"jasmine-core": "*",
-		"bower-traceur": "git://github.com/jmcriffey/bower-traceur",
 		"systemjs": "*",
 		"systemjs-plugin-json":  "0.1.0",
 		"grunt-systemjs-bundler": "git://github.com/constgen/grunt-systemjs-bundler#0.5.0"

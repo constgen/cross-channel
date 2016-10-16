@@ -551,8 +551,6 @@ $__System.registerDynamic('16', ['13', '15'], true, function ($__require, export
 $__System.registerDynamic('17', ['18', '19', '1a', '1b', '1c'], true, function ($__require, exports, module) {
 	'use strict';
 
-	//var Symbol = require('es6-symbol')
-
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
@@ -563,100 +561,84 @@ $__System.registerDynamic('17', ['18', '19', '1a', '1b', '1c'], true, function (
 	var environment = $__require('1c');
 
 	var global = environment.global;
+	var window = environment.window;
 
-	function getGUI(window) {
-		return window && window.nwDispatcher.requireNwGui();
-	}
-
-	function whenGuiReadyThen(callback) {
-		var gui = getGUI(global.window);
-		if (gui) {
-			callback(gui);
-			return;
-		}
-		var timerId = setInterval(function () {
-			gui = getGUI(global.window);
-			if (gui) {
-				clearInterval(timerId);
-				callback(gui);
-			}
-		}, 10);
-	}
-
-	function getNWWindowThen(callback) {
-		whenGuiReadyThen(function (gui) {
-			var nwWindow = gui.Window.get();
-			callback(nwWindow);
-		});
-	}
-
-	// getNWWindowThen(function (nwWindow) {
-	// 	//listen, when new page is open
-	// 	nwWindowwin.on('loaded', function () {
-	// 		var browserWindow = global.window;
-	// 		//listen main window only once
-	// 		if (!browserWindow[omen]) {
-	// 			browserWindow[omen] = true; //mark as listened by Node
-	// 			attachMessageHandlers();
-	// 		}
-	// 	});
-	// });
+	/*
+ Known issues:
+ 1. Safari detection of a structured clonning support when DOM is sent. String(e.data).indexOf("Null") !== -1. See https://gist.github.com/ryanseddon/4583494
+ 2. IE8's events are triggered synchronously, which may lead to to unexpected results.
+ 3. Firefox 41 and below do not support sending File/Blob objects see bug
+ 4. Internet Explorer 8 and 9, and Firefox versions 6.0 (Opera says that 3.6) and below only support strings as postMessage's message. References: https://dev.opera.com/articles/view/window-postmessage-messagechannel/#crossdoc
+ 5. Probbaly: IE<=9 doesn't like you to call postMessage as soon as page loads. Use a setTimeout to wait one or two seconds before calling postMessage.
+ 6. IE8-11 doen't support postMessage on different tabs and origins.
+ 7. Worker structured clonning support (from MDN): Chrome >=13, Firefox >=8, IE>=10.0, Opera >=11.5, Safari>=6
+ 
+ Links:
+ * http://blogs.msdn.com/b/ieinternals/archive/2009/09/16/bugs-in-ie8-support-for-html5-postmessage-sessionstorage-and-localstorage.aspx
+ 
+ Todo:
+ 1. Add `window.open` & `window.opener` messaging
+ 
+ */
 
 	function Transport(name) {
+		this.port1 = window.top;
+		this.port2 = global;
 		this.origin = '*'; //location = window.location, location && (location.origin || (location.protocol + '//' + location.host)) || '*'
 		this.listener = null;
 		this.name = name;
 		this.key = generateRandomKey();
 	}
 
-	Transport.supported = Boolean(global.window);
-
-	//computed `this.port`
-	Object.defineProperty(Transport.prototype, 'port', {
-		get: function () {
-			return global.window;
-		},
-		set: function (value) {}
-	});
+	Transport.supported = Boolean(global.postMessage);
+	Transport.EVENT_TYPE = 'message';
 
 	Transport.prototype.send = function (data) {
 		var origin = this.origin;
 		var message = new Message(data, this);
-		var browserWindow = this.port;
-		var topBrowserWindow = browserWindow.top;
-		var browserFrames = topBrowserWindow && [topBrowserWindow].concat(getAllChildWindows(topBrowserWindow)) || [];
+		var childWindows = getAllChildWindows(this.port1);
+		var index = -1;
 
-		getNWWindowThen(function (nwWindow) {
-			var index = -1;
-			while (++index in browserFrames) {
-				//.replace(/'/g, '\\\'')
-				nwWindow.eval(browserFrames[index].frameElement || null, 'window.postMessage(' + JSON.stringify(message.asJSON()) + ', "' + origin + '")');
+		try {
+			this.port1.postMessage(message, origin);
+			while (++index in childWindows) {
+				childWindows[index].postMessage(message, origin);
 			}
-		});
+		} catch (err) {
+			// Structured clone error
+			err.name === 'DataCloneError';
+			err.code === err.DATA_CLONE_ERR;
+
+			//API error
+			console.error(err, data);
+			//var e;
+			//e = win.document.createEvent('Event')
+			//e.initEvent(Transport.EVENT_TYPE, false, false)
+			//e.data = message
+			//e.origin = this.origin
+			//e.source = window
+			//win.dispatchEvent(e)
+		}
 	};
 
 	Transport.prototype.onMessageEvent = function (handler) {
 		var transport = this;
-		var port = this.port;
-		function listener(e) {
-			var window = this;
-			var nativeMessageEventWorks = window.MessageEvent && window.MessageEvent.length;
-			var event = nativeMessageEventWorks ? new window.MessageEvent('message', e) : e; //fixes crashes in NWjs, when read `e.data`
+		var port2 = this.port2;
+		function listener(event) {
 			var messageEvent = new MessageEvent(event);
-
 			if ('key' in messageEvent && 'sourceChannel' in messageEvent && transport.name === messageEvent.sourceChannel //events on the same channel
 			&& transport.key !== messageEvent.key //skip returned back events
 			) {
 					handler(messageEvent);
 				}
 		}
-		port.removeEventListener('message', this.listener);
-		port.addEventListener('message', listener);
+		port2.removeEventListener(Transport.EVENT_TYPE, this.listener);
+		port2.addEventListener(Transport.EVENT_TYPE, listener);
 		this.listener = listener;
 	};
 
 	Transport.prototype.close = function () {
-		this.port.removeEventListener('message', this.listener);
+		this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener);
 		this.listener = null;
 	};
 
@@ -838,6 +820,8 @@ $__System.registerDynamic('1c', [], true, function ($__require, exports, module)
 $__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function ($__require, exports, module) {
 	'use strict';
 
+	//var Symbol = require('es6-symbol')
+
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
@@ -848,103 +832,147 @@ $__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function (
 	var environment = $__require('1c');
 
 	var global = environment.global;
-	var window = environment.window;
 
-	/*
- Known issues:
- 1. Safari detection of a structured clonning support when DOM is sent. String(e.data).indexOf("Null") !== -1. See https://gist.github.com/ryanseddon/4583494
- 2. IE8's events are triggered synchronously, which may lead to to unexpected results.
- 3. Firefox 41 and below do not support sending File/Blob objects see bug
- 4. Internet Explorer 8 and 9, and Firefox versions 6.0 (Opera says that 3.6) and below only support strings as postMessage's message. References: https://dev.opera.com/articles/view/window-postmessage-messagechannel/#crossdoc
- 5. Probbaly: IE<=9 doesn't like you to call postMessage as soon as page loads. Use a setTimeout to wait one or two seconds before calling postMessage.
- 6. IE8-11 doen't support postMessage on different tabs and origins.
- 7. Worker structured clonning support (from MDN): Chrome >=13, Firefox >=8, IE>=10.0, Opera >=11.5, Safari>=6
- 
- Todo:
- 1. Add `window.opener` messaging
- 
- */
+	function getGUI(window) {
+		return window && window.nwDispatcher.requireNwGui();
+	}
+
+	function whenGuiReadyThen(callback) {
+		var gui = getGUI(global.window);
+		if (gui) {
+			callback(gui);
+			return;
+		}
+		var timerId = setInterval(function () {
+			gui = getGUI(global.window);
+			if (gui) {
+				clearInterval(timerId);
+				callback(gui);
+			}
+		}, 10);
+	}
+
+	function getNWWindowThen(callback) {
+		whenGuiReadyThen(function (gui) {
+			var nwWindow = gui.Window.get();
+			callback(nwWindow);
+		});
+	}
+
+	// getNWWindowThen(function (nwWindow) {
+	// 	//listen, when new page is open
+	// 	nwWindowwin.on('loaded', function () {
+	// 		var browserWindow = global.window;
+	// 		//listen main window only once
+	// 		if (!browserWindow[omen]) {
+	// 			browserWindow[omen] = true; //mark as listened by Node
+	// 			attachMessageHandlers();
+	// 		}
+	// 	});
+	// });
 
 	function Transport(name) {
-		this.port1 = window.top;
-		this.port2 = global;
+		// this.port - computed value
 		this.origin = '*'; //location = window.location, location && (location.origin || (location.protocol + '//' + location.host)) || '*'
 		this.listener = null;
 		this.name = name;
 		this.key = generateRandomKey();
 	}
 
-	Transport.supported = Boolean(global.postMessage);
+	Transport.supported = Boolean(environment.isNode && global.window);
+	Transport.EVENT_TYPE = 'message';
+
+	//computed `this.port`
+	Object.defineProperty(Transport.prototype, 'port', {
+		get: function () {
+			return global.window;
+		},
+		set: function (value) {}
+	});
 
 	Transport.prototype.send = function (data) {
 		var origin = this.origin;
 		var message = new Message(data, this);
-		var childWindows = getAllChildWindows(this.port1);
-		var index = -1;
+		var browserWindow = this.port;
+		var topBrowserWindow = browserWindow.top;
+		var browserFrames = topBrowserWindow && [topBrowserWindow].concat(getAllChildWindows(topBrowserWindow)) || [];
 
-		this.port1.postMessage(message, origin);
-		while (++index in childWindows) {
-			try {
-				childWindows[index].postMessage(message, origin);
-			} catch (err) {
-				// Structured clone error
-				err.name === 'DataCloneError';
-				err.code === err.DATA_CLONE_ERR;
-
-				//API error
-				console.error(err, data);
-				//var e;
-				//e = win.document.createEvent('Event')
-				//e.initEvent('message', false, false)
-				//e.data = message
-				//e.origin = this.origin
-				//e.source = window
-				//win.dispatchEvent(e)
+		getNWWindowThen(function (nwWindow) {
+			var index = -1;
+			while (++index in browserFrames) {
+				//.replace(/'/g, '\\\'')
+				nwWindow.eval(browserFrames[index].frameElement || null, 'window.postMessage(' + JSON.stringify(message.asJSON()) + ', "' + origin + '")');
 			}
-		}
+		});
 	};
 
 	Transport.prototype.onMessageEvent = function (handler) {
 		var transport = this;
-		var port2 = this.port2;
-		function listener(event) {
+		var port = this.port;
+		function listener(e) {
+			var window = this;
+			var nativeMessageEventWorks = window.MessageEvent && window.MessageEvent.length;
+			var event = nativeMessageEventWorks ? new window.MessageEvent(Transport.EVENT_TYPE, e) : e; //fixes crashes in NWjs, when read `e.data`
 			var messageEvent = new MessageEvent(event);
+
 			if ('key' in messageEvent && 'sourceChannel' in messageEvent && transport.name === messageEvent.sourceChannel //events on the same channel
 			&& transport.key !== messageEvent.key //skip returned back events
 			) {
 					handler(messageEvent);
 				}
 		}
-		port2.removeEventListener('message', this.listener);
-		port2.addEventListener('message', listener);
+		port.removeEventListener(Transport.EVENT_TYPE, this.listener);
+		port.addEventListener(Transport.EVENT_TYPE, listener);
 		this.listener = listener;
 	};
 
 	Transport.prototype.close = function () {
-		this.port2.removeEventListener('message', this.listener);
+		this.port.removeEventListener(Transport.EVENT_TYPE, this.listener);
 		this.listener = null;
 	};
 
 	module.exports = Transport;
 	return module.exports;
 });
-$__System.registerDynamic('1e', ['1c', '17', '1d'], true, function ($__require, exports, module) {
+$__System.registerDynamic('1e', [], true, function ($__require, exports, module) {
+  'use strict';
+
+  var define,
+      global = this || self,
+      GLOBAL = global;
+  var noop = function () {};
+
+  function Transport() {}
+
+  Transport.prototype.send = noop;
+  Transport.prototype.onMessageEvent = noop;
+  Transport.prototype.close = noop;
+
+  module.exports = Transport;
+  return module.exports;
+});
+$__System.registerDynamic('1f', ['17', '1d', '1e'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var environment = $__require('1c');
+	var PostMessageTransport = $__require('17');
+	var NwTransport = $__require('1d');
+	var BlankTransport = $__require('1e');
 
 	var Transport;
 
-	if (environment.isNode) {
-		Transport = $__require('17');
+	if (NwTransport.supported) {
+		Transport = NwTransport;
+	} else if (PostMessageTransport.supported) {
+		Transport = PostMessageTransport;
 	} else {
-		Transport = $__require('1d');
+		Transport = BlankTransport;
 	}
 	//Transport = require('./experimental/broadcastchannel.transport.js')
 	//Transport = require('./experimental/storage.transport.js')
+	//Transport = require('./experimental/eventemitter.transport.js')
 
 	function Channel(id) {
 		Transport.call(this, id);
@@ -956,14 +984,14 @@ $__System.registerDynamic('1e', ['1c', '17', '1d'], true, function ($__require, 
 	module.exports = Channel;
 	return module.exports;
 });
-$__System.registerDynamic('1', ['16', '1e'], true, function ($__require, exports, module) {
+$__System.registerDynamic('1', ['16', '1f'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
 	var HandlersCollection = $__require('16');
-	var Channel = $__require('1e');
+	var Channel = $__require('1f');
 
 	function CrossChannel(name) {
 		var crosschannel = this;
