@@ -48,13 +48,15 @@ function getNWWindowThen(callback) {
 // });
 
 function Transport(name) {
+	// this.port - computed value
 	this.origin = '*' //location = window.location, location && (location.origin || (location.protocol + '//' + location.host)) || '*'
 	this.listener = null
 	this.name = name
 	this.key = generateRandomKey()
 }
 
-Transport.supported = Boolean(global.window)
+Transport.supported = Boolean(environment.isNode && global.window)
+Transport.EVENT_TYPE = 'message'
 
 //computed `this.port`
 Object.defineProperty(Transport.prototype, 'port', {
@@ -86,7 +88,7 @@ Transport.prototype.onMessageEvent = function (handler) {
 	function listener(e) {
 		var window = this
 		var nativeMessageEventWorks = window.MessageEvent && window.MessageEvent.length
-		var event = nativeMessageEventWorks ? (new window.MessageEvent('message', e)) : e //fixes crashes in NWjs, when read `e.data`
+		var event = nativeMessageEventWorks ? (new window.MessageEvent(Transport.EVENT_TYPE, e)) : e //fixes crashes in NWjs, when read `e.data`
 		var messageEvent = new MessageEvent(event)
 		
 		if (
@@ -98,13 +100,13 @@ Transport.prototype.onMessageEvent = function (handler) {
 			handler(messageEvent)
 		}
 	}
-	port.removeEventListener('message', this.listener)
-	port.addEventListener('message', listener)
+	port.removeEventListener(Transport.EVENT_TYPE, this.listener)
+	port.addEventListener(Transport.EVENT_TYPE, listener)
 	this.listener = listener
 }
 
 Transport.prototype.close = function () {
-	this.port.removeEventListener('message', this.listener)
+	this.port.removeEventListener(Transport.EVENT_TYPE, this.listener)
 	this.listener = null
 }
 

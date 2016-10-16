@@ -19,8 +19,11 @@ Known issues:
 6. IE8-11 doen't support postMessage on different tabs and origins.
 7. Worker structured clonning support (from MDN): Chrome >=13, Firefox >=8, IE>=10.0, Opera >=11.5, Safari>=6
 
+Links:
+* http://blogs.msdn.com/b/ieinternals/archive/2009/09/16/bugs-in-ie8-support-for-html5-postmessage-sessionstorage-and-localstorage.aspx
+
 Todo:
-1. Add `window.opener` messaging
+1. Add `window.open` & `window.opener` messaging
 
 */
 
@@ -34,6 +37,7 @@ function Transport(name) {
 }
 
 Transport.supported = Boolean(global.postMessage)
+Transport.EVENT_TYPE = 'message'
 
 Transport.prototype.send = function (data) {
 	var origin = this.origin
@@ -41,25 +45,25 @@ Transport.prototype.send = function (data) {
 	var childWindows = getAllChildWindows(this.port1)
 	var index = -1
 
-	this.port1.postMessage(message, origin)
-	while (++index in childWindows) {
-		try {
+	try {
+		this.port1.postMessage(message, origin)
+		while (++index in childWindows) {
 			childWindows[index].postMessage(message, origin)
-		} catch (err) {
-			// Structured clone error
-			err.name === 'DataCloneError'
-			err.code === err.DATA_CLONE_ERR
-
-			//API error
-			console.error(err, data);
-			//var e;
-			//e = win.document.createEvent('Event')
-			//e.initEvent('message', false, false)
-			//e.data = message
-			//e.origin = this.origin
-			//e.source = window
-			//win.dispatchEvent(e)
 		}
+	} catch (err) {
+		// Structured clone error
+		err.name === 'DataCloneError'
+		err.code === err.DATA_CLONE_ERR
+
+		//API error
+		console.error(err, data);
+		//var e;
+		//e = win.document.createEvent('Event')
+		//e.initEvent(Transport.EVENT_TYPE, false, false)
+		//e.data = message
+		//e.origin = this.origin
+		//e.source = window
+		//win.dispatchEvent(e)
 	}
 }
 
@@ -77,13 +81,13 @@ Transport.prototype.onMessageEvent = function (handler) {
 			handler(messageEvent)
 		}
 	}
-	port2.removeEventListener('message', this.listener)
-	port2.addEventListener('message', listener)
+	port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
+	port2.addEventListener(Transport.EVENT_TYPE, listener)
 	this.listener = listener
 }
 
 Transport.prototype.close = function () {
-	this.port2.removeEventListener('message', this.listener)
+	this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
 	this.listener = null
 }
 

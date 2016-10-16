@@ -19,7 +19,10 @@ var storage = global.sessionStorage // || globalStorage
 7. IE 10-11 work very bad with iframes
 8. IE 11 may dispatch event twice in an iframe
 
-A goof case https://github.com/nodeca/tabex
+Links:
+* http://blogs.msdn.com/b/ieinternals/archive/2009/09/16/bugs-in-ie8-support-for-html5-postmessage-sessionstorage-and-localstorage.aspx
+
+A good case https://github.com/nodeca/tabex
 */
 
 
