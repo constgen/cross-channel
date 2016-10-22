@@ -16,7 +16,7 @@ var dataNumber
 var dataBoolean
 
 
-describe('"message" event', function(){
+describe('Message event', function(){
 	beforeEach(function () {
 		dataObject = {a: 1}
 		dataString = 'data'

@@ -6,4 +6,6 @@ describe('CrossChannel', function () {
 	require('./spec/channel.js')
 	require('./spec/types/handlers-collection.js')
 	require('./spec/types/message-event.js')
+	require('./spec/types/message.js')
+	require('./spec/utils/environment.js')
 })
