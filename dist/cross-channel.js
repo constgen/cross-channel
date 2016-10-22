@@ -805,22 +805,27 @@ $__System.registerDynamic('1c', [], true, function ($__require, exports, module)
 		var window = self.window || browserWindow || {};
 		var location = window.location || {};
 		var global = nodeGlobal || ('top' in window ? window.top.global || {} : {}); //NodeJS `global`
-
-		var isNode = 'require' in global && 'process' in global && global.global === global && typeof __dirname !== 'undefined'; //NodeJS context
+		//NodeJS context
+		var isNode = 'process' in global && global.global === global && typeof __dirname !== 'undefined';
+		// NWJS context
+		var isNW = 'process' in global && ('_nw_app' in global.process || '__node_webkit' in global.process
+		//|| ('nw' in global.process.versions)
+		|| 'chromium' in global.process.versions || 'node-webkit' in global.process.versions);
 
 		//export
 		exports.window = window;
 		exports.global = global;
 		exports.location = location;
-		exports.isNode = isNode;
+		exports.is = {
+			node: isNode,
+			nw: isNW
+		};
 		exports.undefined = undefined;
 	}(this, typeof global !== 'undefined' ? global : null, typeof window !== 'undefined' ? window : null);
 	return module.exports;
 });
 $__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function ($__require, exports, module) {
 	'use strict';
-
-	//var Symbol = require('es6-symbol')
 
 	var define,
 	    global = this || self,
@@ -830,6 +835,15 @@ $__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function (
 	var generateRandomKey = $__require('1a');
 	var getAllChildWindows = $__require('1b');
 	var environment = $__require('1c');
+
+	/*
+ Known issues:
+ 1. From NW to child window - NO
+ 2. From child window to NW - NO
+ 3. From child frame to child window - NO
+ 4. From child window to child frame - NO
+ 5. <iframe nwfaketop> disables message bubbling to the parent frame
+ */
 
 	var global = environment.global;
 
@@ -849,7 +863,7 @@ $__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function (
 				clearInterval(timerId);
 				callback(gui);
 			}
-		}, 10);
+		}, 4);
 	}
 
 	function getNWWindowThen(callback) {
@@ -859,27 +873,29 @@ $__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function (
 		});
 	}
 
-	// getNWWindowThen(function (nwWindow) {
-	// 	//listen, when new page is open
-	// 	nwWindowwin.on('loaded', function () {
-	// 		var browserWindow = global.window;
-	// 		//listen main window only once
-	// 		if (!browserWindow[omen]) {
-	// 			browserWindow[omen] = true; //mark as listened by Node
-	// 			attachMessageHandlers();
-	// 		}
-	// 	});
-	// });
-
 	function Transport(name) {
+		var transport = this;
 		// this.port - computed value
 		this.origin = '*'; //location = window.location, location && (location.origin || (location.protocol + '//' + location.host)) || '*'
 		this.listener = null;
 		this.name = name;
 		this.key = generateRandomKey();
+
+		this.nwLoadedListener = function () {
+			var listener = transport.listener;
+			var port = transport.port;
+			if (listener) {
+				//port.removeEventListener(Transport.EVENT_TYPE, listener)
+				port.addEventListener(Transport.EVENT_TYPE, listener);
+			}
+		};
+		getNWWindowThen(function (nwWindow) {
+			//listen when page is refreshed
+			nwWindow.on('loaded', transport.nwLoadedListener);
+		});
 	}
 
-	Transport.supported = Boolean(environment.isNode && global.window);
+	Transport.supported = Boolean(environment.is.node && environment.is.nw);
 	Transport.EVENT_TYPE = 'message';
 
 	//computed `this.port`
@@ -891,13 +907,34 @@ $__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function (
 	});
 
 	Transport.prototype.send = function (data) {
+		var transport = this;
 		var origin = this.origin;
 		var message = new Message(data, this);
-		var browserWindow = this.port;
-		var topBrowserWindow = browserWindow.top;
-		var browserFrames = topBrowserWindow && [topBrowserWindow].concat(getAllChildWindows(topBrowserWindow)) || [];
-
 		getNWWindowThen(function (nwWindow) {
+			var browserWindow = transport.port;
+			var topBrowserWindow = browserWindow.top;
+			var browserFrames = topBrowserWindow && [topBrowserWindow].concat(getAllChildWindows(topBrowserWindow)) || [];
+
+			// try {
+			// 	if (global.__nwWindowsStore) {
+			// 		browserFrames = Object.keys(global.__nwWindowsStore)
+			// 			.map(function(id) {
+			// 				return global.__nwWindowsStore[id];
+			// 			})
+			// 			.map(function(nwWindow) {
+			// 				var browserWindow = nwWindow.window;
+			// 				return browserWindow.top && [browserWindow.top].concat(channel.getAllChildWindows(browserWindow.top)) || []
+			// 			})
+			// 			.reduce(function(allBrowserWindows, browserWindows) {
+			// 				return allBrowserWindows.concat(browserWindows)
+			// 			}, [])
+			// 	}
+			// }
+			// catch (err) {
+			// 	setTimeout(console.error.bind(console, err), 4000)
+			//
+			// }
+
 			var index = -1;
 			while (++index in browserFrames) {
 				//.replace(/'/g, '\\\'')
@@ -908,7 +945,6 @@ $__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function (
 
 	Transport.prototype.onMessageEvent = function (handler) {
 		var transport = this;
-		var port = this.port;
 		function listener(e) {
 			var window = this;
 			var nativeMessageEventWorks = window.MessageEvent && window.MessageEvent.length;
@@ -921,14 +957,22 @@ $__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function (
 					handler(messageEvent);
 				}
 		}
-		port.removeEventListener(Transport.EVENT_TYPE, this.listener);
-		port.addEventListener(Transport.EVENT_TYPE, listener);
-		this.listener = listener;
+
+		getNWWindowThen(function () {
+			var port = transport.port;
+			port.removeEventListener(Transport.EVENT_TYPE, transport.listener);
+			port.addEventListener(Transport.EVENT_TYPE, listener);
+			transport.listener = listener;
+		});
 	};
 
 	Transport.prototype.close = function () {
-		this.port.removeEventListener(Transport.EVENT_TYPE, this.listener);
-		this.listener = null;
+		var transport = this;
+		getNWWindowThen(function (nwWindow) {
+			transport.port.removeEventListener(Transport.EVENT_TYPE, transport.listener);
+			transport.listener = null;
+			nwWindow.removeListener('loaded', transport.nwLoadedListener);
+		});
 	};
 
 	module.exports = Transport;
