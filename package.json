@@ -2,7 +2,7 @@
 	"name": "cross-channel",
 	"private": false,
 	"description": "Cross window communication messaging",
-	"version": "0.4.0",
+	"version": "0.4.1",
 	"license": "MIT",
 	"author": "Constantine Genchevsky",
 	"main": "src/index.js",
@@ -30,7 +30,7 @@
 		"grunt-contrib-clean": "1.0.0",
 		"jasmine-core": "*",
 		"systemjs": "*",
-		"systemjs-plugin-json":  "0.1.0",
+		"systemjs-plugin-json": "0.1.0",
 		"grunt-systemjs-bundler": "git://github.com/constgen/grunt-systemjs-bundler#0.5.0"
 	},
 	"scripts": {
@@ -40,8 +40,8 @@
 		"live": "grunt live",
 		"code": "grunt code"
 	},
-	"engines" : {
-		"node" : ">=0.10.0",
-		"npm" : ">=3.0.0"
+	"engines": {
+		"node": ">=0.10.0",
+		"npm": ">=3.0.0"
 	}
 }

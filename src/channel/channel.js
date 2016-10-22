@@ -19,7 +19,7 @@ else {
 //Transport = require('./experimental/storage.transport.js')
 //Transport = require('./experimental/eventemitter.transport.js')
 
-function Channel (id){
+function Channel(id) {
 	Transport.call(this, id)
 }
 

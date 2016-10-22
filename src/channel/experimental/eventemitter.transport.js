@@ -18,7 +18,7 @@ function Transport(name) {
 	this.port.setMaxListeners(Infinity)
 }
 
-Transport.supported = Boolean(environment.isNode)
+Transport.supported = Boolean(environment.is.node)
 Transport.EVENT_TYPE = 'message'
 
 Transport.prototype.send = function (data) {
