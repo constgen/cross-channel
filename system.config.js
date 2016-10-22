@@ -1,8 +1,5 @@
 System.config({
 	defaultJSExtensions: false,
-	meta: {
-		'*.json': {loader: 'json'}
-	},
 	map: {
 		'../../src/': 'source:',
 		'../../': 'project:',

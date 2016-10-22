@@ -30,7 +30,6 @@
 		"grunt-contrib-clean": "1.0.0",
 		"jasmine-core": "*",
 		"systemjs": "*",
-		"systemjs-plugin-json": "0.1.0",
 		"grunt-systemjs-bundler": "git://github.com/constgen/grunt-systemjs-bundler#0.5.0"
 	},
 	"scripts": {

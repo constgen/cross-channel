@@ -1,7 +1,6 @@
 'use strict';
 
 var CrossChannel = require('../../src/index.js')
-var packageManifest = require('../../package.json')
 
 var channel
 
