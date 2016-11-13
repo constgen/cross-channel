@@ -1,16 +1,9 @@
 System.config({
-	defaultJSExtensions: false,
 	map: {
-		'../../src/': 'source:',
-		'../../': 'project:',
 		'es6-symbol': '../node_modules/es6-symbol',
 		'es5-ext': '../node_modules/es5-ext',
 		'd': '../node_modules/d/index.js',
 		'json': '../node_modules/systemjs-plugin-json/json.js' //loader plugin
-	},
-	paths: {
-		'project:*': '../*',
-		'source:*': '../src/*'
 	},
 	packages: {
 		'es6-symbol': {
@@ -25,5 +18,17 @@ System.config({
 				'./string/#/contains': './string/#/contains/index'
 			}
 		}
+	}
+})
+
+System.config({
+	defaultJSExtensions: false,
+	map: {
+		'../../src/': 'source:',
+		'../../': 'project:'
+	},
+	paths: {
+		'project:*': '../*',
+		'source:*': '../src/*'
 	}
 })

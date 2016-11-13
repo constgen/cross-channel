@@ -2,7 +2,7 @@
 
 var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
-var environment = require('../utils/environment.js')
+var environment = require('../../utils/environment.js')
 
 var global = environment.global
 

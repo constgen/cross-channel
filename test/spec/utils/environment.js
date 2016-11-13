@@ -15,7 +15,13 @@ describe('environment', function () {
 		})
 	}
 
+	it('may be "Node"', function () {
+		expect(environment.is.node).toEqual(jasmine.any(Boolean))
+	})
+	it('may be "NW"', function () {
+		expect(environment.is.nw).toEqual(jasmine.any(Boolean))
+	})
 	it('has correct "undefined"', function () {
-		expect(environment.undefined).toBe(undefined)
+		expect(environment.undefined).not.toBeDefined()
 	})
 })

@@ -6,8 +6,10 @@ var generateRandomKey = require('../../utils/generate-random-key.js')
 var environment = require('../../utils/environment.js')
 
 var window = environment.window
-var storage = global.sessionStorage // || globalStorage
-
+var storageSupported = (function(){
+	try {return 'localStorage' in global && global.localStorage !== null} 
+	catch(e) {return false}
+}())
 
 /* Known possible issues:
 1. IE dispathes events on a `document`. if ('v'=='\v') 
@@ -27,14 +29,14 @@ A good case https://github.com/nodeca/tabex
 
 
 function Transport (name){
-	this.port1 = storage
+	this.port1 = global.localStorage // sessionStorage || globalStorage
 	this.port2 = window //document || body
 	this.listener = null
 	this.name = name
 	this.key = generateRandomKey()
 }
 
-Transport.supported = Boolean(storage)
+Transport.supported = Boolean(storageSupported)
 Transport.STORAGE_KEY = '__cross-channel_message'
 Transport.EVENT_TYPE = 'storage'
 

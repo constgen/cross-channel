@@ -1,30 +1,37 @@
 ﻿'use strict'
 
-var PostMessageTransport = require('./postmessage.transport.js')
-var NwTransport = require('./nw.transport.js')
-var BlankTransport = require('./blank.transport.js')
+var Transport = require('./transport.js')
+var Transition = require('./transition.js')
 
-var Transport
-
-if (NwTransport.supported) {
-	Transport = NwTransport
-}
-else if (PostMessageTransport.supported) {
-	Transport = PostMessageTransport
-}
-else {
-	Transport = BlankTransport
-}
-//Transport = require('./experimental/broadcastchannel.transport.js')
-//Transport = require('./experimental/storage.transport.js')
-//Transport = require('./experimental/eventemitter.transport.js')
 
 function Channel(id) {
-	Transport.call(this, id)
+	this.transport = new Transport(id)
+	this.transition = new Transition(id)
 }
 
-Channel.prototype = Object.create(Transport.prototype)
-Channel.prototype.constructor = Channel
+Channel.prototype = {
+	constructor: Channel,
+	send: function (data) {
+		this.transition.send(data)
+		this.transport.send(data)
+	},
+	onMessageEvent: function (handler) {
+		var transport = this.transport
+		var transition = this.transition
+		this.transport.onMessageEvent(function (event) {
+			handler(event)
+			// transition.send(event.data)
+		})
+		this.transition.onMessageEvent(function (event) {
+			handler(event)
+			// transport.send(event.data)
+		})
+	},
+	close: function () {
+		this.transport.close()
+		this.transition.close()
+	}
+}
 
 module.exports = Channel
 

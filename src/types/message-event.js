@@ -22,26 +22,30 @@ function MessageEvent(config) {
 		}
 	}
 
-		//connextionMessageRegExp = /^__([A-Za-z]+?)__:/;
-		// connectionCretaria,
-		// connectionType,
-		// connectionMatch,
-		// data;
+	//connextionMessageRegExp = /^__([A-Za-z]+?)__:/;
+	// connectionCretaria,
+	// connectionType,
+	// connectionMatch,
+	// data;
 
-		// //parse message without try-catch
-		// if (message && typeof message === 'string') {
-		// 	connectionMatch = message.match(connextionMessageRegExp);
+	// //parse message without try-catch
+	// if (message && typeof message === 'string') {
+	// 	connectionMatch = message.match(connextionMessageRegExp);
 
-		// 	if (connectionMatch) {
-		// 		connectionCretaria = connectionMatch[0];
-		// 		connectionType = connectionMatch[1];
-		// 		if (connectionType === messageType) {
-		// 			data = JSON.parse(message.substr(connectionCretaria.length));
-		// 		}
-		// 	}
-		// }
+	// 	if (connectionMatch) {
+	// 		connectionCretaria = connectionMatch[0];
+	// 		connectionType = connectionMatch[1];
+	// 		if (connectionType === messageType) {
+	// 			data = JSON.parse(message.substr(connectionCretaria.length));
+	// 		}
+	// 	}
+	// }
 
 	Object.defineProperties(this, {
+		'type': {
+			value: 'message',
+			writable: false
+		},
 		'data': {
 			value: message.data, //extract usefull data from a message
 			writable: false
@@ -51,7 +55,7 @@ function MessageEvent(config) {
 			writable: false
 		},
 		'origin': {
-			value: config.origin || '',
+			value: config.origin || config.url || '',
 			writable: false
 		},
 		'key': {

@@ -1,10 +1,10 @@
 'use strict'
 
-var MessageEvent = require('../types/message-event.js')
-var Message = require('../types/message.js')
-var generateRandomKey = require('../utils/generate-random-key.js')
-var getAllChildWindows = require('../utils/get-all-child-windows.js')
-var environment = require('../utils/environment.js')
+var MessageEvent = require('../../types/message-event.js')
+var Message = require('../../types/message.js')
+var generateRandomKey = require('../../utils/generate-random-key.js')
+var getAllChildWindows = require('../../utils/get-all-child-windows.js')
+var environment = require('../../utils/environment.js')
 
 var global = environment.global
 var window = environment.window
