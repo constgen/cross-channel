@@ -1,18 +1,20 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="utf-8">
 	<title>Main frame</title>
 	<style>
 		iframe {
-			height: 250px;
+			height: 300px;
 			width: 50%;
 			margin: 20px;
 		}
-
+		
 		.red {
 			color: darkred;
 		}
+		
 		.green {
 			color: darkgreen;
 		}
@@ -61,14 +63,22 @@
 		function sendGreen(){
 			greenChannel.postMessage({test: 'data from ' + title})
 		}
+		function openWindow(){
+			window.open(location.href, '_blank')
+		}
 	</script>
 </head>
+
 <body>
+	Main
+	<br>
 	<button class="red" type="button" onclick="sendRed()">Send</button>
 	<button class="green" type="button" onclick="sendGreen()">Send</button>
+	&nbsp; &nbsp;&nbsp;<button type="button" onclick="openWindow()">Open</button>
 	<br>
 	<iframe src="frame1.html"></iframe>
 	<br>
 	<iframe src="http://dropbox.loc/Projects%20GitHub/cross-channel/demo/frame3.html"></iframe>
 </body>
+
 </html>

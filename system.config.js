@@ -1,3 +1,18 @@
+// default config
+System.config({
+	defaultJSExtensions: false,
+	map: {
+
+	},
+	paths: {
+		'../../src/*': 'source:*',
+		'../../*': 'project:*',
+		'project:*': '../*',
+		'source:*': '../src/*'
+	}
+})
+
+// custom config
 System.config({
 	map: {
 		'es6-symbol': '../node_modules/es6-symbol',
@@ -21,14 +36,4 @@ System.config({
 	}
 })
 
-System.config({
-	defaultJSExtensions: false,
-	map: {
-		'../../src/': 'source:',
-		'../../': 'project:'
-	},
-	paths: {
-		'project:*': '../*',
-		'source:*': '../src/*'
-	}
-})
+

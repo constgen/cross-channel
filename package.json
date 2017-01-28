@@ -6,6 +6,7 @@
 	"license": "MIT",
 	"author": "Constantine Genchevsky",
 	"main": "src/index.js",
+	"browser": "dist/cross-channel.js",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/constgen/cross-channel.git"

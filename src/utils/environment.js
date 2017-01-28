@@ -15,7 +15,8 @@
 		&& (
 			('_nw_app' in global.process)
 			|| ('__node_webkit' in global.process)
-			//|| ('nw' in global.process.versions)
+			|| ('__nwjs' in global.process)
+			|| ('nw' in global.process.versions)
 			|| ('chromium' in global.process.versions)
 			|| ('node-webkit' in global.process.versions)
 		)

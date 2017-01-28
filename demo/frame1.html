@@ -55,11 +55,17 @@
 		function sendGreen(){
 			greenChannel.postMessage({test: 'data from ' + title})
 		}
+		function openWindow(){
+			window.open(location.href, '_blank')
+		}
 	</script>
 </head>
 <body>
+	Frame1
+	<br>
 	<button class="red" type="button" onclick="sendRed()">Send</button>
 	<button class="green" type="button" onclick="sendGreen()">Send</button>
+	&nbsp; &nbsp;&nbsp;<button type="button" onclick="openWindow()">Open</button>
 	<br>
 	<iframe src="frame2.html"></iframe>
 </body>

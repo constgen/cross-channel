@@ -4,7 +4,7 @@ var CrossChannel = require('../../src/index.js')
 
 var channel1
 var channel2
-var channelName = 'text-constructor'
+var channelName = 'test-constructor'
 
 describe('constructor', function () {
 	it('must always be called with a "new" statement', function () {
