@@ -3,7 +3,7 @@
 var PostMessageTransport = require('./transports/postmessage.transport.js')
 var NwTransport = require('./transports/nw.transport.js')
 var BlankTransport = require('./transports/blank.transport.js')
-var ExtensionTransport = require('./experimental/chrome.transport.js')
+var ExtensionTransport = require('./transports/extension.transport.js')
 
 module.exports = (function () {
 	// return require('./experimental/broadcastchannel.transport.js')
