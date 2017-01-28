@@ -7,6 +7,7 @@ var environment = require('../../utils/environment.js')
 
 var TAB_ID_KEY = 'tabId'
 var global = environment.global
+var BroadcastChannel = global.BroadcastChannel;
 var storageSupported = (function () {
 	try {
 		return ('sessionStorage' in global) && global.sessionStorage !== null
@@ -27,10 +28,10 @@ var key = (function () {
 function Transition(name) {
 	this.name = name
 	this.key = key
-	this.port = new global.BroadcastChannel(name)
+	this.port = new BroadcastChannel(name)
 }
 
-Transition.supported = Boolean(global.BroadcastChannel && storageSupported)
+Transition.supported = Boolean(BroadcastChannel && storageSupported)
 Transition.EVENT_TYPE = 'message'
 
 Transition.prototype.send = function (data) {

@@ -12,8 +12,8 @@ function Channel(id) {
 Channel.prototype = {
 	constructor: Channel,
 	send: function (data) {
-		this.transition.send(data)
 		this.transport.send(data)
+		//this.transition.send(data)
 	},
 	onMessageEvent: function (handler) {
 		var transport = this.transport

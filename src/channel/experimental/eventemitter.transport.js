@@ -5,15 +5,16 @@ var EventEmitter = require('events')
 var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
 var generateRandomKey = require('../../utils/generate-random-key.js')
-//var getAllChildWindows = require('../utils/get-all-child-windows.js')
 var environment = require('../../utils/environment.js')
 
 var global = environment.global
-var eventEmitter = new EventEmitter()
+var eventEmitter
 
 function Transport(name) {
+	eventEmitter = eventEmitter || new EventEmitter()
 	this.port = eventEmitter
 	this.name = name
+	this.listener = null
 	this.key = generateRandomKey()
 	this.port.setMaxListeners(Infinity)
 }
@@ -48,12 +49,13 @@ Transport.prototype.onMessageEvent = function (handler) {
 			handler(messageEvent)
 		}
 	}
-	port.removeAllListeners()
+	port.removeListener(Transport.EVENT_TYPE, this.listener)
 	port.on(Transport.EVENT_TYPE, listener)
 }
 
 Transport.prototype.close = function () {
-	this.port.removeAllListeners()
+	this.port.removeListener(Transport.EVENT_TYPE, this.listener)
+	this.listener = null
 }
 
 module.exports = Transport

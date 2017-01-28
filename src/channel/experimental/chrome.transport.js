@@ -2,29 +2,46 @@
 
 var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
+var generateRandomKey = require('../../utils/generate-random-key.js')
+var getAllChildWindows = require('../../utils/get-all-child-windows.js')
+var environment = require('../../utils/environment.js')
+
+var global = environment.global
+var window = environment.window
+var chrome = global.chrome // || global.browser
+var detection = chrome && chrome.runtime && chrome.runtime.onMessage
 
 /*
 Reference:
 https://developer.chrome.com/extensions/messaging
+http://www.adambarth.com/experimental/crx/docs/messaging.html (Chrome <=19 )
+https://developer.chrome.com/extensions/content_scripts#host-page-communication
+http://stackoverflow.com/questions/10526995/can-a-site-invoke-a-browser-extension
+
+If you need to support Chrome 19 and earlier, use chrome.extention.onRequest and chrome.extention.sendRequest
+For Chrome 20 - 25, use chrome.extension.onMessage and chrome.extension.sendMessage
+For Chrome 26+ use chrome.runtime.onMessage and chrome.runtime.sendMessage
+
+Getting manifest config
+chrome.runtime.getManifest()
+
+"externally_connectable": {
+  "matches": ["*://*.example.com/*"]
+}
  */
 
-//Here is how you open a channel from a content script, and send and listen for messages: 
-
-
-//Sending a request from the extension to a content script looks very similar, except that you need to specify which tab to connect to. Simply replace the call to connect in the above example with tabs.connect. 
-
-
 function Transport(name) {
-	this.port = chrome.runtime.connect(name) //from content
-	//this.port = chrome.tabs.connect(name) //from extension
-	//this.port2
+	this.port = chrome.runtime// || chrome.extension
+	this.port2 = chrome.tabs
 	this.name = name
+	this.key = generateRandomKey()
+	this.listener = null
 }
 
-Transport.supported = Boolean(chrome)
+Transport.supported = Boolean(detection)
 
 Transport.prototype.send = function (data) {
-	var message = new Message(data)
+	var message = new Message(data, this)
 
 	//Sending a request from a content script looks like this: 
 	// chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
@@ -38,10 +55,13 @@ Transport.prototype.send = function (data) {
 	// 	});
 	// });
 
-	this.port.postMessage(message)
+	this.port.sendMessage(message)
+	//this.port2 && this.port2.sendMessage(message)
+	//this.port.sendMessage(extensionId, message)
 }
 
 Transport.prototype.onMessageEvent = function (handler) {
+	var transport = this
 	//This looks the same from a content script or extension page. 
 	// chrome.runtime.onMessage.addListener(
 	// 	function (request, sender, sendResponse) {
@@ -55,27 +75,49 @@ Transport.prototype.onMessageEvent = function (handler) {
 	//	Fired when a message is sent from another extension/app (by runtime.sendMessage). Cannot be used in a content script. 
 
 	// chrome.runtime.onMessageExternal.addListener(function (request, sender, sendResponse){})
-	// this.port2.onmessage = function (event) {
-	// 	var messageEvent = new MessageEvent(event)
-	// 	handler(messageEvent)
-	// }
 
 	//in content
-	port.onMessage.addListener(function (message) {
-		//port.postMessage({ answer: "Madame" })
-	});
+	// this.port.onMessage.addListener(function (message) {
+	// 	console.info(message)
+	// 	//port.postMessage({ answer: "Madame" })
+	// });
+
 
 	//in extension
-	chrome.runtime.onConnect.addListener(function (port) {
-		port.name === transport.name;
-		port.onMessage.addListener(function (message) {
-			//port.postMessage({ question: "Who's there?" })
-		});
-	});
+	// chrome.runtime.onConnect.addListener(function (port) {
+	// 	console.info(port.name)
+	// 	port.name === transport.name
+	// 	port.onMessage.addListener(function (message) {
+	// 		console.info(message)
+	// 		//port.postMessage({ question: "Who's there?" })
+	// 	})
+	// })
+
+	function listener(message, sender) {
+		var messageEvent = new MessageEvent({
+			data: message,
+			origin: sender.tab ? sender.tab.url : sender.url
+		})
+
+		if (
+			('sourceChannel' in messageEvent)
+			&& ('key' in messageEvent)
+			&& transport.name === messageEvent.sourceChannel //events on the same channel
+			&& transport.key !== messageEvent.key //skip returned back events
+		) {
+			handler(messageEvent)
+		}
+	}
+
+	this.port.onMessage.removeListener(this.listener)
+	this.port.onMessage.addListener(listener)
+	//this.port.onMessageExternal.addListener(listener)
+	this.listener = listener
 }
 
 Transport.prototype.close = function () {
-	this.port.disconnect()
+	this.port.onMessage.removeListener(this.listener)
+	this.listener = null
 }
 
 
