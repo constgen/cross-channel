@@ -1,35 +1,26 @@
 ﻿'use strict'
 
-var Transport = require('./transport.js')
-var Transition = require('./transition.js')
-
+var SameOriginTransport = require('./transport.js').SameOrigin
+var CrossOriginTransport = require('./transport.js').CrossOrigin
 
 function Channel(id) {
-	this.transport = new Transport(id)
-	this.transition = new Transition(id)
+	this.sameTransport = new SameOriginTransport(id)
+	this.crossTransport = new CrossOriginTransport(id)
 }
 
 Channel.prototype = {
 	constructor: Channel,
 	send: function (data) {
-		this.transport.send(data)
-		//this.transition.send(data)
+		this.sameTransport.send(data)
+		this.crossTransport.send(data)
 	},
 	onMessageEvent: function (handler) {
-		var transport = this.transport
-		var transition = this.transition
-		this.transport.onMessageEvent(function (event) {
-			handler(event)
-			// transition.send(event.data)
-		})
-		this.transition.onMessageEvent(function (event) {
-			handler(event)
-			// transport.send(event.data)
-		})
+		this.sameTransport.onMessageEvent(handler)
+		this.crossTransport.onMessageEvent(handler)
 	},
 	close: function () {
-		this.transport.close()
-		this.transition.close()
+		this.sameTransport.close()
+		this.crossTransport.close()
 	}
 }
 

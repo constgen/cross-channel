@@ -1,6 +1,6 @@
 'use strict'
 
-var noop = function(){}
+var noop = require('../../utils/noop.js')
 
 function Transport() {}
 

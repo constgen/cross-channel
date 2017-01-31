@@ -3,7 +3,7 @@
 var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
 var generateRandomKey = require('../../utils/generate-random-key.js')
-var getAllChildWindows = require('../../utils/get-all-child-windows.js')
+var getCrossWindows = require('../../utils/get-cross-windows.js')
 var environment = require('../../utils/environment.js')
 
 var global = environment.global
@@ -42,13 +42,12 @@ Transport.EVENT_TYPE = 'message'
 Transport.prototype.send = function (data) {
 	var origin = this.origin
 	var message = new Message(data, this)
-	var childWindows = getAllChildWindows(this.port1)
+	var windows = getCrossWindows(this.port1)
 	var index = -1
 
 	try {
-		this.port1.postMessage(message, origin)
-		while (++index in childWindows) {
-			childWindows[index].postMessage(message, origin)
+		while (++index in windows) {
+			windows[index].postMessage(message, origin)
 		}
 	} catch (err) {
 		// Structured clone error
