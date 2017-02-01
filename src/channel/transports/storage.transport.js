@@ -27,7 +27,6 @@ Links:
 A good case https://github.com/nodeca/tabex
 */
 
-
 function Transport (name){
 	this.port1 = global.localStorage // sessionStorage || globalStorage
 	this.port2 = window //document || body
@@ -40,49 +39,51 @@ Transport.supported = Boolean(storageSupported)
 Transport.STORAGE_KEY = '__cross-channel_message'
 Transport.EVENT_TYPE = 'storage'
 
-Transport.prototype.send = function (data) {
-	var message = new Message(data, this)
-	message.changeTrigger = generateRandomKey()
-	var messageJSON = message.asJSON()
-	var port2 = this.port2
-	var storageEvent = new window.StorageEvent(Transport.EVENT_TYPE, {newValue: messageJSON})
-	try {
-		this.port1.setItem(Transport.STORAGE_KEY, messageJSON)
-	}
-	catch(err){
-		console.error(err)
-	}
-	setTimeout(function(){ 
-		port2.dispatchEvent(storageEvent) 
-	}, 0)
-}
+Transport.prototype = {
+	send: function (data) {
+		var message = new Message(data, this)
+		message.changeTrigger = generateRandomKey()
+		var port1 = this.port1
+		var port2 = this.port2
+		
+		setTimeout(function(){ 
+			var messageJSON = message.asJSON()
+			var storageEvent = new window.StorageEvent(Transport.EVENT_TYPE, {newValue: messageJSON})
+			try {
+				port1.setItem(Transport.STORAGE_KEY, messageJSON)
+			}
+			catch(err){
+				console.error(err)
+			}
+			port2.dispatchEvent(storageEvent) 
+		}, 0)
+	},
 
-Transport.prototype.onMessageEvent = function (handler) {
-	var transport = this
-	var port2 = this.port2
-	function listener(event) {
-		event.data = event.newValue
-		var messageEvent = new MessageEvent(event)
-		if (
-			('key' in messageEvent) 
-			&& ('sourceChannel' in messageEvent)
-			&& transport.name === messageEvent.sourceChannel //events on the same channel
-			&& transport.key !== messageEvent.key //skip returned back events
-		) { 
-			handler(messageEvent)
+	onMessageEvent: function (handler) {
+		var transport = this
+		var port2 = this.port2
+		function listener(event) {
+			event.data = event.newValue
+			var messageEvent = new MessageEvent(event)
+			if (
+				('key' in messageEvent) 
+				&& ('sourceChannel' in messageEvent)
+				&& transport.name === messageEvent.sourceChannel //events on the same channel
+				&& transport.key !== messageEvent.key //skip returned back events
+			) { 
+				handler(messageEvent)
+			}
 		}
+		
+		port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
+		port2.addEventListener(Transport.EVENT_TYPE, listener)
+		this.listener = listener
+	},
+
+	close: function () {
+		this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
+		this.listener = null
 	}
-	
-	port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
-	port2.addEventListener(Transport.EVENT_TYPE, listener)
-	this.listener = listener
 }
-
-Transport.prototype.close = function () {
-	this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
-	this.listener = null
-}
-
-
 
 module.exports = Transport

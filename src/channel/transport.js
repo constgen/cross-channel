@@ -6,12 +6,14 @@ var NwTransport = require('./transports/nw.transport.js')
 var BlankTransport = require('./transports/blank.transport.js')
 var ExtensionTransport = require('./transports/extension.transport.js')
 var BroadcastChannelTransport = require('./transports/broadcastchannel.transport.js')
+var StorageTransport = require('./transports/storage.transport.js')
 
 module.exports = {
 	SameOrigin: (function () {
 		switch (true) {
 			case ExtensionTransport.supported: return ExtensionTransport
 			case BroadcastChannelTransport.supported: return BroadcastChannelTransport
+			case StorageTransport.supported: return StorageTransport
 			case NwTransport.supported: return NwTransport
 			//case PostMessageOriginTransport.supported: return PostMessageOriginTransport
 			default: return BlankTransport
