@@ -548,16 +548,55 @@ $__System.registerDynamic('16', ['13', '15'], true, function ($__require, export
 	module.exports = HandlersCollection;
 	return module.exports;
 });
-$__System.registerDynamic('17', ['18', '19', '1a', '1b', '1c'], true, function ($__require, exports, module) {
+$__System.registerDynamic('17', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var MessageEvent = $__require('18');
-	var Message = $__require('19');
-	var generateRandomKey = $__require('1a');
-	var getAllChildWindows = $__require('1b');
+	function getChildWindows(topWin) {
+		var windows = [];
+		var frames = topWin.frames;
+		var win;
+		var i = frames.length;
+
+		while (i--) {
+			win = frames[i];
+			//if (win.location.origin !== location.origin) {
+			if (win.location.host !== location.host || win.location.protocol !== location.protocol) {
+				windows.push(win);
+			}
+			//include deeper level frames
+			windows = windows.concat(getChildWindows(win));
+		}
+
+		return windows;
+	}
+
+	/**
+  * Creates a collection of cross origin frames/iframes windows objects. Takes into a count deeper nested frames.
+  * @param [Window] topWin - Main document window, where to search child frames
+  * @returns [Array] - Array of all child windows.
+  */
+	module.exports = function (topWin) {
+		var windows = getChildWindows(topWin);
+		if (topWin.location.host !== location.host || topWin.location.protocol !== location.protocol) {
+			windows.push(topWin);
+		}
+		return windows;
+	};
+	return module.exports;
+});
+$__System.registerDynamic('18', ['19', '1a', '1b', '17', '1c'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var MessageEvent = $__require('19');
+	var Message = $__require('1a');
+	var generateRandomKey = $__require('1b');
+	var getCrossWindows = $__require('17');
 	var environment = $__require('1c');
 
 	var global = environment.global;
@@ -596,13 +635,12 @@ $__System.registerDynamic('17', ['18', '19', '1a', '1b', '1c'], true, function (
 	Transport.prototype.send = function (data) {
 		var origin = this.origin;
 		var message = new Message(data, this);
-		var childWindows = getAllChildWindows(this.port1);
+		var windows = getCrossWindows(this.port1);
 		var index = -1;
 
 		try {
-			this.port1.postMessage(message, origin);
-			while (++index in childWindows) {
-				childWindows[index].postMessage(message, origin);
+			while (++index in windows) {
+				windows[index].postMessage(message, origin);
 			}
 		} catch (err) {
 			// Structured clone error
@@ -645,127 +683,160 @@ $__System.registerDynamic('17', ['18', '19', '1a', '1b', '1c'], true, function (
 	module.exports = Transport;
 	return module.exports;
 });
-$__System.registerDynamic('18', ['1c'], true, function ($__require, exports, module) {
+$__System.registerDynamic('1d', [], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var environment = $__require('1c');
+	function getChildWindows(topWin) {
+		var windows = [];
+		var frames = topWin.frames;
+		var win;
+		var i = frames.length;
 
-	var window = environment.window;
-	var EventConstructor = window.MessageEvent || Object;
-
-	function MessageEvent(config) {
-		config = config || {};
-		var message = config.data || {};
-
-		// if (!message) {
-		// 	return this; //EXIT, if message is empty
-		// }
-
-		if (typeof message === 'string') {
-			try {
-				message = JSON.parse(message);
-			} catch (err) {
-				console.error(err, event);
+		while (i--) {
+			win = frames[i];
+			//if (win.location.origin !== location.origin) {
+			if (win.location.host === location.host || win.location.protocol === location.protocol) {
+				windows.push(win);
 			}
+			//include deeper level frames
+			windows = windows.concat(getChildWindows(win));
 		}
 
-		//connextionMessageRegExp = /^__([A-Za-z]+?)__:/;
-		// connectionCretaria,
-		// connectionType,
-		// connectionMatch,
-		// data;
-
-		// //parse message without try-catch
-		// if (message && typeof message === 'string') {
-		// 	connectionMatch = message.match(connextionMessageRegExp);
-
-		// 	if (connectionMatch) {
-		// 		connectionCretaria = connectionMatch[0];
-		// 		connectionType = connectionMatch[1];
-		// 		if (connectionType === messageType) {
-		// 			data = JSON.parse(message.substr(connectionCretaria.length));
-		// 		}
-		// 	}
-		// }
-
-		Object.defineProperties(this, {
-			'data': {
-				value: message.data, //extract usefull data from a message
-				writable: false
-			},
-			'timeStamp': {
-				value: config.timeStamp || 0,
-				writable: false
-			},
-			'origin': {
-				value: config.origin || '',
-				writable: false
-			},
-			'key': {
-				value: message.key,
-				writable: false
-			},
-			'sourceChannel': {
-				value: message.sourceChannel,
-				writable: false
-			}
-		});
+		return windows;
 	}
-
-	MessageEvent.prototype = Object.create(EventConstructor.prototype);
-	MessageEvent.prototype.constructor = MessageEvent;
-
-	module.exports = MessageEvent;
-	return module.exports;
-});
-$__System.registerDynamic('19', [], true, function ($__require, exports, module) {
-	'use strict';
 
 	/**
-  * Message entity constructor
-  * @param {*} data - any data to be transfered
-  * @param {Object} [source] - source sent from
+  * Creates a collection of cross origin frames/iframes windows objects. Takes into a count deeper nested frames.
+  * @param [Window] topWin - Main document window, where to search child frames
+  * @returns [Array] - Array of all child windows.
   */
-
-	var define,
-	    global = this || self,
-	    GLOBAL = global;
-	function Message(data, source) {
-		source = source || {};
-		this.data = data;
-		this.key = source.key;
-		this.sourceChannel = source.name;
-	}
-
-	// Message.prototype.toJSON = function(){
-	// 	return this
-	// }
-	Message.prototype.asJSON = function () {
-		return JSON.stringify(this);
+	module.exports = function (topWin) {
+		var windows = getChildWindows(topWin);
+		if (topWin.location.host === location.host || topWin.location.protocol === location.protocol) {
+			windows.push(topWin);
+		}
+		return windows;
 	};
-
-	// _createEvent = function (event) {
-	// 	return '__connexionEvent__:' + JSON.stringify(event);
-	// }
-
-	module.exports = Message;
 	return module.exports;
 });
-$__System.registerDynamic('1a', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('1e', ['1c'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var define,
+      global = this || self,
+      GLOBAL = global;
+  var environment = $__require('1c');
+
+  var window = environment.window;
+  var location = window.location;
+
+  module.exports = new String(location.origin || location.protocol + '//' + location.host);
+  return module.exports;
+});
+$__System.registerDynamic('1f', ['19', '1a', '1b', '1d', '1c', '1e'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	module.exports = function generateRandomKey() {
-		return Math.round(Math.random() * Math.pow(10, 15));
+	var MessageEvent = $__require('19');
+	var Message = $__require('1a');
+	var generateRandomKey = $__require('1b');
+	var getOriginWindows = $__require('1d');
+	var environment = $__require('1c');
+	var locationOrigin = $__require('1e');
+
+	var global = environment.global;
+	var window = environment.window;
+
+	/*
+ Known issues:
+ 1. Safari detection of a structured clonning support when DOM is sent. String(e.data).indexOf("Null") !== -1. See https://gist.github.com/ryanseddon/4583494
+ 2. IE8's events are triggered synchronously, which may lead to to unexpected results.
+ 3. Firefox 41 and below do not support sending File/Blob objects see bug
+ 4. Internet Explorer 8 and 9, and Firefox versions 6.0 (Opera says that 3.6) and below only support strings as postMessage's message. References: https://dev.opera.com/articles/view/window-postmessage-messagechannel/#crossdoc
+ 5. Probbaly: IE<=9 doesn't like you to call postMessage as soon as page loads. Use a setTimeout to wait one or two seconds before calling postMessage.
+ 6. IE8-11 doen't support postMessage on different tabs and origins.
+ 7. Worker structured clonning support (from MDN): Chrome >=13, Firefox >=8, IE>=10.0, Opera >=11.5, Safari>=6
+ 
+ Links:
+ * http://blogs.msdn.com/b/ieinternals/archive/2009/09/16/bugs-in-ie8-support-for-html5-postmessage-sessionstorage-and-localstorage.aspx
+ 
+ Todo:
+ 1. Add `window.open` & `window.opener` messaging
+ 
+ */
+
+	function Transport(name) {
+		this.port1 = window.top;
+		//this.port2 = global
+		this.origin = locationOrigin;
+		//this.listener = null
+		this.name = name;
+		this.key = generateRandomKey();
+	}
+
+	Transport.supported = Boolean(global.postMessage);
+	Transport.EVENT_TYPE = 'message';
+
+	Transport.prototype.send = function (data) {
+		var origin = this.origin;
+		var message = new Message(data, this);
+		var windows = getOriginWindows(this.port1);
+		var index = -1;
+
+		try {
+			while (++index in windows) {
+				windows[index].postMessage(message, origin);
+			}
+		} catch (err) {
+			// Structured clone error
+			err.name === 'DataCloneError';
+			err.code === err.DATA_CLONE_ERR;
+
+			//API error
+			console.error(err, data);
+			//var e;
+			//e = win.document.createEvent('Event')
+			//e.initEvent(Transport.EVENT_TYPE, false, false)
+			//e.data = message
+			//e.origin = this.origin
+			//e.source = window
+			//win.dispatchEvent(e)
+		}
 	};
+
+	Transport.prototype.onMessageEvent = function (handler) {
+		// var transport = this
+		// var port2 = this.port2
+		// function listener(event) {
+		// 	var messageEvent = new MessageEvent(event)
+		// 	if (
+		// 		('key' in messageEvent) 
+		// 		&& ('sourceChannel' in messageEvent)
+		// 		&& transport.name === messageEvent.sourceChannel //events on the same channel
+		// 		&& transport.key !== messageEvent.key //skip returned back events
+		// 	) { 
+		// 		handler(messageEvent)
+		// 	}
+		// }
+		// port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
+		// port2.addEventListener(Transport.EVENT_TYPE, listener)
+		// this.listener = listener
+	};
+
+	Transport.prototype.close = function () {
+		// this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
+		// this.listener = null
+	};
+
+	module.exports = Transport;
 	return module.exports;
 });
-$__System.registerDynamic('1b', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('20', [], true, function ($__require, exports, module) {
 	'use strict';
 	/**
   * Creates a collection of all child frames/iframes windows objects. Takes into a count deeper nested frames.
@@ -793,47 +864,16 @@ $__System.registerDynamic('1b', [], true, function ($__require, exports, module)
 	};
 	return module.exports;
 });
-$__System.registerDynamic('1c', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('21', ['19', '1a', '1b', '20', '1c'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var __filename = 'utils\\environment.js',
-	    __dirname = '';
-	!function (self, nodeGlobal, browserWindow, undefined) {
-		var window = self.window || browserWindow || {};
-		var location = window.location || {};
-		var global = nodeGlobal || ('top' in window ? window.top.global || {} : {}); //NodeJS `global`
-		//NodeJS context
-		var isNode = 'process' in global && global.global === global && typeof __dirname !== 'undefined';
-		// NWJS context
-		var isNW = 'process' in global && ('_nw_app' in global.process || '__node_webkit' in global.process
-		//|| ('nw' in global.process.versions)
-		|| 'chromium' in global.process.versions || 'node-webkit' in global.process.versions);
-
-		//export
-		exports.window = window;
-		exports.global = global;
-		exports.location = location;
-		exports.is = {
-			node: isNode,
-			nw: isNW
-		};
-		exports.undefined = undefined;
-	}(this, typeof global !== 'undefined' ? global : null, typeof window !== 'undefined' ? window : null);
-	return module.exports;
-});
-$__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function ($__require, exports, module) {
-	'use strict';
-
-	var define,
-	    global = this || self,
-	    GLOBAL = global;
-	var MessageEvent = $__require('18');
-	var Message = $__require('19');
-	var generateRandomKey = $__require('1a');
-	var getAllChildWindows = $__require('1b');
+	var MessageEvent = $__require('19');
+	var Message = $__require('1a');
+	var generateRandomKey = $__require('1b');
+	var getAllChildWindows = $__require('20');
 	var environment = $__require('1c');
 
 	/*
@@ -978,13 +1018,13 @@ $__System.registerDynamic('1d', ['18', '19', '1a', '1b', '1c'], true, function (
 	module.exports = Transport;
 	return module.exports;
 });
-$__System.registerDynamic('1e', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('22', ['23'], true, function ($__require, exports, module) {
   'use strict';
 
   var define,
       global = this || self,
       GLOBAL = global;
-  var noop = function () {};
+  var noop = $__require('23');
 
   function Transport() {}
 
@@ -995,47 +1035,485 @@ $__System.registerDynamic('1e', [], true, function ($__require, exports, module)
   module.exports = Transport;
   return module.exports;
 });
-$__System.registerDynamic('1f', ['17', '1d', '1e'], true, function ($__require, exports, module) {
+$__System.registerDynamic('23', [], true, function ($__require, exports, module) {
+  'use strict';
+
+  var define,
+      global = this || self,
+      GLOBAL = global;
+  module.exports = function () {};
+  return module.exports;
+});
+$__System.registerDynamic('24', ['19', '1a', '1b', '1c', '23'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var PostMessageTransport = $__require('17');
-	var NwTransport = $__require('1d');
-	var BlankTransport = $__require('1e');
+	var MessageEvent = $__require('19');
+	var Message = $__require('1a');
+	var generateRandomKey = $__require('1b');
+	var environment = $__require('1c');
+	var noop = $__require('23');
 
-	var Transport;
+	var global = environment.global;
+	var chrome = global.chrome;
+	var extension = typeof browser === 'object' && browser;
+	var runtime = extension && extension.runtime || chrome && (chrome.runtime || chrome.extension);
+	var tabs = extension && extension.tabs || chrome && chrome.tabs;
+	var detection = runtime && runtime.onMessage;
 
-	if (NwTransport.supported) {
-		Transport = NwTransport;
-	} else if (PostMessageTransport.supported) {
-		Transport = PostMessageTransport;
-	} else {
-		Transport = BlankTransport;
+	/*
+ Reference:
+ https://developer.chrome.com/extensions/messaging
+ http://www.adambarth.com/experimental/crx/docs/messaging.html (Chrome <=19 )
+ https://developer.chrome.com/extensions/content_scripts#host-page-communication
+ http://stackoverflow.com/questions/10526995/can-a-site-invoke-a-browser-extension
+ 
+ If you need to support Chrome 19 and earlier, use chrome.extention.onRequest and chrome.extention.sendRequest
+ For Chrome 20 - 25, use chrome.extension.onMessage and chrome.extension.sendMessage
+ For Chrome 26+ use chrome.runtime.onMessage and chrome.runtime.sendMessage
+ 
+ Getting manifest config
+ chrome.runtime.getManifest()
+ 
+  */
+
+	function Transport(name) {
+		this.port = runtime;
+		this.tabs = tabs;
+		this.name = name;
+		this.key = generateRandomKey();
+		this.listener = noop;
 	}
-	//Transport = require('./experimental/broadcastchannel.transport.js')
-	//Transport = require('./experimental/storage.transport.js')
-	//Transport = require('./experimental/eventemitter.transport.js')
+
+	Transport.supported = Boolean(detection);
+
+	Transport.prototype.send = function (data) {
+		var message = new Message(data, this);
+		var transport = this;
+
+		this.port.sendMessage(message);
+		if (this.tabs) {
+			this.tabs.query({}, function (tabs) {
+				var i = -1;
+				while (++i in tabs) {
+					transport.tabs.sendMessage(tabs[i].id, message, function () {
+						var err = runtime.lastError;
+					});
+				}
+			});
+		}
+		//this.port.sendMessage(extensionId, message)
+	};
+
+	Transport.prototype.onMessageEvent = function (handler) {
+		var transport = this;
+
+		//	Fired when a message is sent from another extension/app (by runtime.sendMessage). Cannot be used in a content script. 
+		// chrome.runtime.onMessageExternal.addListener(function (request, sender, sendResponse){})
+
+		function listener(message, sender) {
+			var messageEvent = new MessageEvent({
+				data: message,
+				origin: sender.tab ? sender.tab.url : sender.url
+			});
+
+			if ('sourceChannel' in messageEvent && 'key' in messageEvent && transport.name === messageEvent.sourceChannel //events on the same channel
+			&& transport.key !== messageEvent.key //skip returned back events
+			) {
+					handler(messageEvent);
+				}
+		}
+
+		this.port.onMessage.removeListener(this.listener);
+		//this.port.onMessageExternal.removeListener(this.listener)
+		this.port.onMessage.addListener(listener);
+		//this.port.onMessageExternal.addListener(listener)
+		this.listener = listener;
+	};
+
+	Transport.prototype.close = function () {
+		this.port.onMessage.removeListener(this.listener);
+		//this.port.onMessageExternal.removeListener(this.listener)
+		this.listener = noop;
+	};
+
+	module.exports = Transport;
+	return module.exports;
+});
+$__System.registerDynamic('25', ['19', '1a', '1c'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var MessageEvent = $__require('19');
+	var Message = $__require('1a');
+	var environment = $__require('1c');
+
+	var global = environment.global;
+
+	function Transport(name) {
+		this.port = new global.BroadcastChannel(name);
+	}
+
+	Transport.supported = Boolean(global.BroadcastChannel);
+	Transport.EVENT_TYPE = 'message';
+
+	Transport.prototype.send = function (data) {
+		var message = new Message(data);
+		this.port.postMessage(message);
+	};
+
+	Transport.prototype.onMessageEvent = function (handler) {
+		this.port.addEventListener(Transport.EVENT_TYPE, function (event) {
+			var messageEvent = new MessageEvent(event);
+			handler(messageEvent);
+		});
+	};
+
+	Transport.prototype.close = function () {
+		this.port.close();
+	};
+
+	module.exports = Transport;
+	return module.exports;
+});
+$__System.registerDynamic('19', ['1c'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var environment = $__require('1c');
+
+	var window = environment.window;
+	var EventConstructor = window.MessageEvent || Object;
+
+	function MessageEvent(config) {
+		config = config || {};
+		var message = config.data || {};
+
+		// if (!message) {
+		// 	return this; //EXIT, if message is empty
+		// }
+
+		if (typeof message === 'string') {
+			try {
+				message = JSON.parse(message);
+			} catch (err) {
+				console.error(err, event);
+			}
+		}
+
+		//connextionMessageRegExp = /^__([A-Za-z]+?)__:/;
+		// connectionCretaria,
+		// connectionType,
+		// connectionMatch,
+		// data;
+
+		// //parse message without try-catch
+		// if (message && typeof message === 'string') {
+		// 	connectionMatch = message.match(connextionMessageRegExp);
+
+		// 	if (connectionMatch) {
+		// 		connectionCretaria = connectionMatch[0];
+		// 		connectionType = connectionMatch[1];
+		// 		if (connectionType === messageType) {
+		// 			data = JSON.parse(message.substr(connectionCretaria.length));
+		// 		}
+		// 	}
+		// }
+
+		Object.defineProperties(this, {
+			'type': {
+				value: 'message',
+				writable: false
+			},
+			'data': {
+				value: message.data, //extract usefull data from a message
+				writable: false
+			},
+			'timeStamp': {
+				value: config.timeStamp || 0,
+				writable: false
+			},
+			'origin': {
+				value: config.origin || config.url || '',
+				writable: false
+			},
+			'key': {
+				value: message.key,
+				writable: false
+			},
+			'sourceChannel': {
+				value: message.sourceChannel,
+				writable: false
+			}
+		});
+	}
+
+	MessageEvent.prototype = Object.create(EventConstructor.prototype);
+	MessageEvent.prototype.constructor = MessageEvent;
+
+	module.exports = MessageEvent;
+	return module.exports;
+});
+$__System.registerDynamic('1a', [], true, function ($__require, exports, module) {
+	'use strict';
+
+	/**
+  * Message entity constructor
+  * @param {*} data - any data to be transfered
+  * @param {Object} [source] - source sent from
+  */
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	function Message(data, source) {
+		source = source || {};
+		this.data = data;
+		this.key = source.key;
+		this.sourceChannel = source.name;
+	}
+
+	// Message.prototype.toJSON = function(){
+	// 	return this
+	// }
+	Message.prototype.asJSON = function () {
+		return JSON.stringify(this);
+	};
+
+	// _createEvent = function (event) {
+	// 	return '__connexionEvent__:' + JSON.stringify(event);
+	// }
+
+	module.exports = Message;
+	return module.exports;
+});
+$__System.registerDynamic('1b', [], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	module.exports = function generateRandomKey() {
+		return Math.round(Math.random() * Math.pow(10, 15));
+	};
+	return module.exports;
+});
+$__System.registerDynamic('26', ['19', '1a', '1b', '1c'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var MessageEvent = $__require('19');
+	var Message = $__require('1a');
+	var generateRandomKey = $__require('1b');
+	var environment = $__require('1c');
+
+	var window = environment.window;
+	var storageSupported = function () {
+		try {
+			return 'localStorage' in global && global.localStorage !== null;
+		} catch (e) {
+			return false;
+		}
+	}();
+
+	/* Known possible issues:
+ 1. IE dispathes events on a `document`. if ('v'=='\v') 
+ 2. Firefox dispatches event on `body`
+ 3. IE 8 doesn't have `key` and `newValue` properties in an event. if (document.documentMode < 9)
+ 4. In iOS event is not fired between tabs
+ 5. Old Firefox and IE may dispath event on the same context
+ 6. IE 10-11 dispatches event before storage modification and `newValue` is not new but old
+ 7. IE 10-11 work very bad with iframes
+ 8. IE 11 may dispatch event twice in an iframe
+ 
+ Links:
+ * http://blogs.msdn.com/b/ieinternals/archive/2009/09/16/bugs-in-ie8-support-for-html5-postmessage-sessionstorage-and-localstorage.aspx
+ 
+ A good case https://github.com/nodeca/tabex
+ */
+
+	function Transport(name) {
+		this.port1 = global.localStorage; // sessionStorage || globalStorage
+		this.port2 = window; //document || body
+		this.listener = null;
+		this.name = name;
+		this.key = generateRandomKey();
+	}
+
+	Transport.supported = Boolean(storageSupported);
+	Transport.STORAGE_KEY = '__cross-channel_message';
+	Transport.EVENT_TYPE = 'storage';
+
+	Transport.prototype = {
+		send: function (data) {
+			var message = new Message(data, this);
+			message.changeTrigger = generateRandomKey();
+			var port1 = this.port1;
+			var port2 = this.port2;
+
+			setTimeout(function () {
+				var messageJSON = message.asJSON();
+				var storageEvent = new window.StorageEvent(Transport.EVENT_TYPE, { newValue: messageJSON });
+				try {
+					port1.setItem(Transport.STORAGE_KEY, messageJSON);
+				} catch (err) {
+					console.error(err);
+				}
+				port2.dispatchEvent(storageEvent);
+			}, 0);
+		},
+
+		onMessageEvent: function (handler) {
+			var transport = this;
+			var port2 = this.port2;
+			function listener(event) {
+				event.data = event.newValue;
+				var messageEvent = new MessageEvent(event);
+				if ('key' in messageEvent && 'sourceChannel' in messageEvent && transport.name === messageEvent.sourceChannel //events on the same channel
+				&& transport.key !== messageEvent.key //skip returned back events
+				) {
+						handler(messageEvent);
+					}
+			}
+
+			port2.removeEventListener(Transport.EVENT_TYPE, this.listener);
+			port2.addEventListener(Transport.EVENT_TYPE, listener);
+			this.listener = listener;
+		},
+
+		close: function () {
+			this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener);
+			this.listener = null;
+		}
+	};
+
+	module.exports = Transport;
+	return module.exports;
+});
+$__System.registerDynamic('27', ['18', '1f', '21', '22', '24', '25', '26'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var PostMessageCrossTransport = $__require('18');
+	var PostMessageOriginTransport = $__require('1f');
+	var NwTransport = $__require('21');
+	var BlankTransport = $__require('22');
+	var ExtensionTransport = $__require('24');
+	var BroadcastChannelTransport = $__require('25');
+	var StorageTransport = $__require('26');
+
+	module.exports = {
+		SameOrigin: function () {
+			switch (true) {
+				case ExtensionTransport.supported:
+					return ExtensionTransport;
+				case BroadcastChannelTransport.supported:
+					return BroadcastChannelTransport;
+				case StorageTransport.supported:
+					return StorageTransport;
+				case NwTransport.supported:
+					return NwTransport;
+				//case PostMessageOriginTransport.supported: return PostMessageOriginTransport
+				default:
+					return BlankTransport;
+			}
+		}(),
+		CrossOrigin: function () {
+			switch (true) {
+				//case PostMessageCrossTransport.supported: return PostMessageCrossTransport
+				default:
+					return BlankTransport;
+			}
+		}()
+	};
+	return module.exports;
+});
+$__System.registerDynamic('28', ['27'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var SameOriginTransport = $__require('27').SameOrigin;
+	var CrossOriginTransport = $__require('27').CrossOrigin;
 
 	function Channel(id) {
-		Transport.call(this, id);
+		this.sameTransport = new SameOriginTransport(id);
+		this.crossTransport = new CrossOriginTransport(id);
 	}
 
-	Channel.prototype = Object.create(Transport.prototype);
-	Channel.prototype.constructor = Channel;
+	Channel.prototype = {
+		constructor: Channel,
+		send: function (data) {
+			this.sameTransport.send(data);
+			this.crossTransport.send(data);
+		},
+		onMessageEvent: function (handler) {
+			this.sameTransport.onMessageEvent(handler);
+			this.crossTransport.onMessageEvent(handler);
+		},
+		close: function () {
+			this.sameTransport.close();
+			this.crossTransport.close();
+		}
+	};
 
 	module.exports = Channel;
 	return module.exports;
 });
-$__System.registerDynamic('1', ['16', '1f'], true, function ($__require, exports, module) {
+$__System.registerDynamic('1c', [], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var __filename = 'utils\\environment.js',
+	    __dirname = '';
+	!function (self, nodeGlobal, browserWindow, undefined) {
+		var window = self.window || browserWindow || {};
+		var location = window.location || {};
+		var global = nodeGlobal || ('top' in window ? window.top.global || {} : {}); //NodeJS `global`
+		//NodeJS context
+		var isNode = 'process' in global && global.global === global && typeof __dirname !== 'undefined';
+		// NWJS context
+		var isNW = 'process' in global && ('_nw_app' in global.process || '__node_webkit' in global.process || '__nwjs' in global.process || 'nw' in global.process.versions || 'chromium' in global.process.versions || 'node-webkit' in global.process.versions);
+		// var isExtension = (
+		// 	window.top 
+		// 	&& /^chrome-extension:\/\//.test(window.top.location)
+		// )
+
+		//export
+		exports.window = window;
+		exports.global = global;
+		exports.location = location;
+		exports.is = {
+			node: isNode,
+			nw: isNW
+			//extension: isExtension
+		};
+		exports.undefined = undefined;
+	}(this, typeof global !== 'undefined' ? global : null, typeof window !== 'undefined' ? window : null);
+	return module.exports;
+});
+$__System.registerDynamic('1', ['16', '28', '1c'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
 	var HandlersCollection = $__require('16');
-	var Channel = $__require('1f');
+	var Channel = $__require('28');
+	var window = $__require('1c').window;
 
 	function CrossChannel(name) {
 		var crosschannel = this;
@@ -1103,6 +1581,7 @@ $__System.registerDynamic('1', ['16', '1f'], true, function ($__require, exports
 	};
 
 	module.exports = CrossChannel;
+	window.CrossChannel = CrossChannel;
 	return module.exports;
 });
 })
