@@ -37,6 +37,7 @@
 		"start": "node src/index.js",
 		"test": "grunt test",
 		"build": "grunt build",
+		"build-demo": "grunt build-demo",
 		"live": "grunt live",
 		"code": "grunt code"
 	},

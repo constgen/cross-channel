@@ -1,0 +1,31 @@
+{
+	"manifest_version": 2,
+	"version": "1.0.0",
+	"name": "Cross-channel demo",
+	"short_name": "CrossChannel",
+	"background": {
+		"scripts": [
+			"dist/cross-channel.js",
+			"extension-bg.js"
+		],
+		"persistent": true
+	},
+	"permissions": [
+		"background"
+	],
+	"browser_action": {
+		"browser_style": false,
+		"default_popup": "index.html",
+		"default_title": "cross-channel"
+	},
+	"content_scripts": [{
+		"matches": ["<all_urls>", "https://*.google.com.ua/*"],
+		"run_at" : "document_start",
+		"js": [
+			"dist/cross-channel.js",
+			"extension-content.js"
+		],
+		"all_frames": false
+	}],
+	"content_security_policy": "script-src 'self'; object-src 'self'"
+}

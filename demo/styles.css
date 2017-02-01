@@ -1,0 +1,28 @@
+iframe {
+	height: 300px;
+	width: 50%;
+	margin: 20px;
+}
+
+.red {
+	color: darkred;
+}
+
+.green {
+	color: darkgreen;
+}
+
+html {
+	width: 780px;
+	height: 500px;
+	min-width: 100%;
+	min-height: 100%;
+	margin: auto;
+}
+
+body {
+	width: inherit;
+	height: inherit;
+	min-width: inherit;
+	min-height: inherit;
+}
