@@ -44,6 +44,7 @@ module.exports = function (grunt) {
 		clean: {
 			doc: [DOC_DIR],
 			build: [BUILD_DIR],
+			demo: ['./demo/' + BUILD_DIR],
 			test: [TEST_DIR + '/test.js']
 		},
 		jasmine: {
@@ -85,6 +86,18 @@ module.exports = function (grunt) {
 					sourceMaps: true
 				}
 			},
+			builddemo: {
+				src: SRC_DIR + '/index.js',
+				dest: './demo/' + BUILD_DIR + '/'+ MODULE_FILE_NAME + '.js',
+				options: {
+					baseURL: SRC_DIR,
+					config: 'system.config.js',
+					type: 'build',
+					format: 'umd',
+					minify: false,
+					sourceMaps: true
+				}
+			},
 			test: {
 				src:  TEST_DIR + '/spec.js',
 				dest: TEST_DIR + '/test.js',
@@ -112,4 +125,5 @@ module.exports = function (grunt) {
 	grunt.registerTask('doc', ['clean:doc', 'jsdoc'])
 	grunt.registerTask('test', ['systemjs:test', 'jasmine', 'clean:test'])
 	grunt.registerTask('build', ['clean:build', 'systemjs:build', 'systemjs:buildmin'])
+	grunt.registerTask('build-demo', ['clean:demo', 'systemjs:builddemo'])
 };

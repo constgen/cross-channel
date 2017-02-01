@@ -19,7 +19,7 @@ module.exports = {
 	}()),
 	CrossOrigin:  (function () {
 		switch (true) {
-			case PostMessageCrossTransport.supported: return PostMessageCrossTransport
+			//case PostMessageCrossTransport.supported: return PostMessageCrossTransport
 			default: return BlankTransport
 		}
 	}())

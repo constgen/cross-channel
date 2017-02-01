@@ -3,13 +3,15 @@
 var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
 var generateRandomKey = require('../../utils/generate-random-key.js')
-var getAllChildWindows = require('../../utils/get-all-child-windows.js')
 var environment = require('../../utils/environment.js')
+var noop = require('../../utils/noop.js')
 
 var global = environment.global
-var window = environment.window
-var chrome = global.chrome // || global.browser
-var detection = chrome && chrome.runtime && chrome.runtime.onMessage
+var chrome = global.chrome
+var extension = (typeof browser === 'object') && browser
+var runtime = extension && extension.runtime || chrome && (chrome.runtime || chrome.extension)
+var tabs = extension && extension.tabs || chrome && chrome.tabs;
+var detection = runtime && runtime.onMessage;
 
 /*
 Reference:
@@ -25,73 +27,41 @@ For Chrome 26+ use chrome.runtime.onMessage and chrome.runtime.sendMessage
 Getting manifest config
 chrome.runtime.getManifest()
 
-"externally_connectable": {
-  "matches": ["*://*.example.com/*"]
-}
  */
 
 function Transport(name) {
-	this.port = chrome.runtime// || chrome.extension
-	this.port2 = chrome.tabs
+	this.port = runtime
+	this.tabs = tabs
 	this.name = name
 	this.key = generateRandomKey()
-	this.listener = null
+	this.listener = noop
 }
 
 Transport.supported = Boolean(detection)
 
 Transport.prototype.send = function (data) {
 	var message = new Message(data, this)
-
-	//Sending a request from a content script looks like this: 
-	// chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
-	// 	console.log(response.farewell);
-	// });
-
-	//This example demonstrates sending a message to the content script in the selected tab. 
-	// chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-	// 	chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, function(response) {
-	// 		console.log(response.farewell);
-	// 	});
-	// });
+	var transport = this
 
 	this.port.sendMessage(message)
-	//this.port2 && this.port2.sendMessage(message)
+	if (this.tabs) {
+		this.tabs.query({}, function (tabs) {
+			var i = -1
+			while (++i in tabs) {
+				transport.tabs.sendMessage(tabs[i].id, message, function () {
+					var err = runtime.lastError
+				})
+			}
+		})
+	}
 	//this.port.sendMessage(extensionId, message)
 }
 
 Transport.prototype.onMessageEvent = function (handler) {
 	var transport = this
-	//This looks the same from a content script or extension page. 
-	// chrome.runtime.onMessage.addListener(
-	// 	function (request, sender, sendResponse) {
-	// 		console.log(sender.tab ?
-	// 			"from a content script:" + sender.tab.url :
-	// 			"from the extension");
-	// 		if (request.greeting == "hello")
-	// 			sendResponse({ farewell: "goodbye" });
-	// 	});
 
 	//	Fired when a message is sent from another extension/app (by runtime.sendMessage). Cannot be used in a content script. 
-
 	// chrome.runtime.onMessageExternal.addListener(function (request, sender, sendResponse){})
-
-	//in content
-	// this.port.onMessage.addListener(function (message) {
-	// 	console.info(message)
-	// 	//port.postMessage({ answer: "Madame" })
-	// });
-
-
-	//in extension
-	// chrome.runtime.onConnect.addListener(function (port) {
-	// 	console.info(port.name)
-	// 	port.name === transport.name
-	// 	port.onMessage.addListener(function (message) {
-	// 		console.info(message)
-	// 		//port.postMessage({ question: "Who's there?" })
-	// 	})
-	// })
 
 	function listener(message, sender) {
 		var messageEvent = new MessageEvent({
@@ -110,6 +80,7 @@ Transport.prototype.onMessageEvent = function (handler) {
 	}
 
 	this.port.onMessage.removeListener(this.listener)
+	//this.port.onMessageExternal.removeListener(this.listener)
 	this.port.onMessage.addListener(listener)
 	//this.port.onMessageExternal.addListener(listener)
 	this.listener = listener
@@ -117,7 +88,8 @@ Transport.prototype.onMessageEvent = function (handler) {
 
 Transport.prototype.close = function () {
 	this.port.onMessage.removeListener(this.listener)
-	this.listener = null
+	//this.port.onMessageExternal.removeListener(this.listener)
+	this.listener = noop
 }
 
 

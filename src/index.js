@@ -2,6 +2,7 @@
 
 var HandlersCollection = require('./types/handlers-collection.js')
 var Channel = require('./channel/channel.js')
+var window = require('./utils/environment.js').window
 
 function CrossChannel(name) {
 	var crosschannel = this
@@ -70,3 +71,4 @@ CrossChannel.prototype.valueOf = function () {
 }
 
 module.exports = CrossChannel
+window.CrossChannel = CrossChannel
