@@ -6,7 +6,8 @@ Cross origin messaging channel
 | Platforms       | frames | tabs |   |   |
 |-----------------|:------:|------|---|---|
 | NodeJS >= 0.8   |    -   |      |   |   |
-| NWJS 11         |    +   |      |   |   |
+| NWJS 0.11       |    +   |      |   |   |
+| NWJS 0.13+      |    +   |      |   |   |
 | Electron        |    -   |      |   |   |
 | Firefox         |    +   |      |   |   |
 | Chrome          |    +   |      |   |   |
@@ -20,5 +21,6 @@ Cross origin messaging channel
 | IE              |        |      |   |   |
 | IE Mobile       |        |      |   |   |
 | Edge            |        |      |   |   |
-| Chrome extension|   -    |      |   |   |
+| Chrome extension|    +   |      |   |   |
+| WebExtension    |    +   |      |   |   |
 |                 |        |      |   |   |
