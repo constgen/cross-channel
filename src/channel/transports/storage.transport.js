@@ -14,21 +14,17 @@ var storageSupported = (function () {
 var URL = (typeof window.URL === 'function') && window.URL
 var StorageEvent = window.StorageEvent
 
-//IE and Edge fix
+//IE and Edge fix, Opera <=12 fix
 if (typeof StorageEvent === 'object' || StorageEvent.length === 0) {
 	StorageEvent = function (eventType, params) {
 		params = params || {}
-		var event = document.createEvent('StorageEvent')
-		event.initStorageEvent(
-			eventType,
-			false,
-			false,
-			params.key || '',
-			params.oldValue || '',
-			params.newValue || '',
-			params.url || '',
-			params.storageArea || null
-		)
+		var event = document.createEvent('Event')
+		event.initEvent('storage', false, false)
+		event.key = params.key || ''
+		event.oldValue = params.oldValue || ''
+		event.newValue = params.newValue || ''
+		event.url = params.url || ''
+		event.storageArea = params.storageArea || null
 		return event;
 	}
 	StorageEvent.prototype = window.Event.prototype;

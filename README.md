@@ -6,13 +6,14 @@ Cross origin messaging channel
 | Platforms       | frames | tabs |   |   |
 |-----------------|:------:|------|---|---|
 | NodeJS >= 0.8   |    -   |      |   |   |
-| NWJS 0.11       |    +   |      |   |   |
-| NWJS 0.13+      |    +   |      |   |   |
+| NWJS 0.11       |    +   |   -  |   |   |
+| NWJS 0.13+      |    +   |   +  |   |   |
 | Electron        |    -   |      |   |   |
-| Firefox         |    +   |      |   |   |
-| Chrome          |    +   |      |   |   |
-| Opera <=12      |        |      |   |   |
-| Opera >15       |    +   |      |   |   |
+| Firefox         |    +   |   +  |   |   |
+| Chrome          |    +   |   +  |   |   |
+| Opera <=9       |    -   |   -  |   |   |
+| Opera <=12      |    +   |   +  |   |   |
+| Opera >15       |    +   |   +  |   |   |
 | Opera mobile    |        |      |   |   |
 | Opera mini      |        |      |   |   |
 | Safari 5+       |    +   |      |   |   |
@@ -21,6 +22,6 @@ Cross origin messaging channel
 | IE              |        |      |   |   |
 | IE Mobile       |        |      |   |   |
 | Edge            |        |      |   |   |
-| Chrome extension|    +   |      |   |   |
-| WebExtension    |    +   |      |   |   |
+| Chrome extension|    +   |   +  |   |   |
+| WebExtension    |    +   |   +  |   |   |
 |                 |        |      |   |   |
