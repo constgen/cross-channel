@@ -7,6 +7,14 @@
 	"author": "Constantine Genchevsky",
 	"main": "src/index.js",
 	"browser": "dist/cross-channel.js",
+	"scripts": {
+		"start": "node src/index.js",
+		"test": "grunt test",
+		"build": "grunt build",
+		"build-demo": "grunt build-demo",
+		"live": "grunt live",
+		"code": "grunt code"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/constgen/cross-channel.git"
@@ -32,14 +40,6 @@
 		"jasmine-core": "*",
 		"systemjs": "*",
 		"grunt-systemjs-bundler": "git://github.com/constgen/grunt-systemjs-bundler#0.5.0"
-	},
-	"scripts": {
-		"start": "node src/index.js",
-		"test": "grunt test",
-		"build": "grunt build",
-		"build-demo": "grunt build-demo",
-		"live": "grunt live",
-		"code": "grunt code"
 	},
 	"engines": {
 		"node": ">=0.10.0",

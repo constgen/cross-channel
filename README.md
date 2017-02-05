@@ -15,7 +15,7 @@ Cross origin messaging channel
 | Opera >15       |    +   |      |   |   |
 | Opera mobile    |        |      |   |   |
 | Opera mini      |        |      |   |   |
-| Safari          |        |      |   |   |
+| Safari 5+       |    +   |      |   |   |
 | iOS Safari      |        |      |   |   |
 | Android browser |        |      |   |   |
 | IE              |        |      |   |   |
