@@ -46,25 +46,9 @@ Transport.prototype.send = function (data) {
 	var windows = getCrossChildWindows(this.port1)
 	var index = -1
 
-	try {
-		this.port1.postMessage(message, origin) //always post message to the top window
-		while (++index in windows) {
-			windows[index].postMessage(message, origin)
-		}
-	} catch (err) {
-		// Structured clone error
-		err.name === 'DataCloneError'
-		err.code === err.DATA_CLONE_ERR
-
-		//API error
-		console.error(err, data);
-		//var e;
-		//e = win.document.createEvent('Event')
-		//e.initEvent(Transport.EVENT_TYPE, false, false)
-		//e.data = message
-		//e.origin = this.origin
-		//e.source = window
-		//win.dispatchEvent(e)
+	this.port1.postMessage(message, origin) //always send message to a top window
+	while (++index in windows) {
+		windows[index].postMessage(message, origin)
 	}
 }
 
@@ -75,14 +59,14 @@ Transport.prototype.onMessageEvent = function (handler) {
 		var messageEvent = new MessageEvent(event)
 		if (
 			(
-				event.source === port2 
+				event.source === port2
 				|| locationOrigin !== event.origin
 			)
-			&& ('key' in messageEvent) 
+			&& ('key' in messageEvent)
 			&& ('sourceChannel' in messageEvent)
 			&& transport.name === messageEvent.sourceChannel //events on the same channel
 			&& transport.key !== messageEvent.key //skip returned back events
-		) { 
+		) {
 			handler(messageEvent)
 		}
 	}

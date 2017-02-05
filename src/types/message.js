@@ -19,6 +19,8 @@ Message.prototype.asJSON = function(){
 	return JSON.stringify(this)
 }
 
+Message.prototype.toString = Message.prototype.asJSON
+
 // _createEvent = function (event) {
 // 	return '__connexionEvent__:' + JSON.stringify(event);
 // }
