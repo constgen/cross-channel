@@ -4,12 +4,14 @@ var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
 var generateRandomKey = require('../../utils/generate-random-key.js')
 var environment = require('../../utils/environment.js')
+var locationOrigin = require('../../utils/location-origin.js')
 
 var window = environment.window
 var storageSupported = (function(){
 	try {return 'localStorage' in global && global.localStorage !== null} 
 	catch(e) {return false}
 }())
+var URL = window.URL
 
 /* Known possible issues:
 1. IE dispathes events on a `document`. if ('v'=='\v') 
@@ -64,12 +66,14 @@ Transport.prototype = {
 		var port2 = this.port2
 		function listener(event) {
 			event.data = event.newValue
+			var eventOrigin = URL && new URL(event.url).origin || locationOrigin //fix for some specific issues when 'storage' event is dispached across origins
 			var messageEvent = new MessageEvent(event)
 			if (
 				('key' in messageEvent) 
 				&& ('sourceChannel' in messageEvent)
 				&& transport.name === messageEvent.sourceChannel //events on the same channel
 				&& transport.key !== messageEvent.key //skip returned back events
+				&& eventOrigin === locationOrigin
 			) { 
 				handler(messageEvent)
 			}

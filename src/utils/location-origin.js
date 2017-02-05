@@ -2,7 +2,6 @@
 
 var environment = require('./environment.js')
 
-var window = environment.window
-var location = window.location
+var location = environment.location
 
-module.exports =  new String(location.origin || (location.protocol + '//' + location.host))
+module.exports = location.origin || (location.protocol + '//' + location.host)

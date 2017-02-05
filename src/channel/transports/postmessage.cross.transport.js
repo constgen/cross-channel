@@ -3,8 +3,9 @@
 var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
 var generateRandomKey = require('../../utils/generate-random-key.js')
-var getCrossWindows = require('../../utils/get-cross-windows.js')
+var getCrossChildWindows = require('../../utils/frames.js').getCrossOriginChildren
 var environment = require('../../utils/environment.js')
+var locationOrigin = require('../../utils/location-origin.js')
 
 var global = environment.global
 var window = environment.window
@@ -42,10 +43,11 @@ Transport.EVENT_TYPE = 'message'
 Transport.prototype.send = function (data) {
 	var origin = this.origin
 	var message = new Message(data, this)
-	var windows = getCrossWindows(this.port1)
+	var windows = getCrossChildWindows(this.port1)
 	var index = -1
 
 	try {
+		this.port1.postMessage(message, origin) //always post message to the top window
 		while (++index in windows) {
 			windows[index].postMessage(message, origin)
 		}
@@ -72,7 +74,11 @@ Transport.prototype.onMessageEvent = function (handler) {
 	function listener(event) {
 		var messageEvent = new MessageEvent(event)
 		if (
-			('key' in messageEvent) 
+			(
+				event.source === port2 
+				|| locationOrigin !== event.origin
+			)
+			&& ('key' in messageEvent) 
 			&& ('sourceChannel' in messageEvent)
 			&& transport.name === messageEvent.sourceChannel //events on the same channel
 			&& transport.key !== messageEvent.key //skip returned back events

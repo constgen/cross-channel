@@ -3,7 +3,7 @@
 var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
 var generateRandomKey = require('../../utils/generate-random-key.js')
-var getOriginWindows = require('../../utils/get-origin-windows.js')
+var getOriginWindows = require('../../utils/frames.js').getSameOrigin
 var environment = require('../../utils/environment.js')
 var locationOrigin = require('../../utils/location-origin.js')
 
@@ -45,10 +45,13 @@ Transport.prototype.send = function (data) {
 	var message = new Message(data, this)
 	var windows = getOriginWindows(this.port1)
 	var index = -1
+	var win
 
 	try {
 		while (++index in windows) {
-			windows[index].postMessage(message, origin)
+			win = windows[index]
+			//if (win === window) {continue}
+			win.postMessage(message, origin)
 		}
 	} catch (err) {
 		// Structured clone error
