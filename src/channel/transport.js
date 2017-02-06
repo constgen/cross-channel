@@ -1,7 +1,7 @@
 'use strict'
 
 var PostMessageCrossTransport = require('./transports/postmessage.cross.transport.js')
-var PostMessageOriginTransport = require('./transports/postmessage.origin.transport.js')
+
 var PostMessageTransport = require('./transports/postmessage.transport.js')
 var NwTransport = require('./transports/nw.transport.js')
 var BlankTransport = require('./transports/blank.transport.js')
@@ -16,7 +16,6 @@ var SameOrigin = (function () {
 		case BroadcastChannelTransport.supported: return BroadcastChannelTransport
 		case StorageTransport.supported: return StorageTransport
 		case NwTransport.supported: return NwTransport
-		//case PostMessageOriginTransport.supported: return PostMessageOriginTransport
 		case PostMessageTransport.supported: return PostMessageTransport
 		default: return BlankTransport
 	}
