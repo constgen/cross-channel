@@ -3,9 +3,8 @@
 var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
 var generateRandomKey = require('../../utils/generate-random-key.js')
-var getOriginChildWindows = require('../../utils/frames.js').getSameOriginChildren
+var getAllWindows = require('../../utils/frames.js').getAll
 var environment = require('../../utils/environment.js')
-var locationOrigin = require('../../utils/location-origin.js')
 
 var global = environment.global
 var window = environment.window
@@ -31,7 +30,7 @@ Todo:
 function Transport(name) {
 	this.port1 = window.top
 	this.port2 = global
-	this.origin = locationOrigin
+	this.origin = '*'
 	this.listener = null
 	this.name = name
 	this.key = generateRandomKey()
@@ -40,63 +39,59 @@ function Transport(name) {
 Transport.supported = Boolean(global.postMessage)
 Transport.EVENT_TYPE = 'message'
 
-Transport.prototype.send = function (data) {
-	var origin = this.origin
-	var message = new Message(data, this)
-	var windows = getOriginChildWindows(this.port1)
-	var index = -1
-	var win
+Transport.prototype = {
+	send: function (data) {
+		var origin = this.origin
+		var message = new Message(data, this)
+		var windows = getAllWindows(this.port1)
+		var index = -1
+		var win
 
-	try {
-		while (++index in windows) {
-			win = windows[index]
-			//if (win === window) {continue}
-			win.postMessage(message, origin)
+		try {
+			while (++index in windows) {
+				win = windows[index]
+				win.postMessage(message, origin)
+			}
+		} catch (err) {
+			// Structured clone error
+			err.name === 'DataCloneError'
+			err.code === err.DATA_CLONE_ERR
+
+			//API error
+			console.error(err, data);
+			//var e;
+			//e = win.document.createEvent('Event')
+			//e.initEvent(Transport.EVENT_TYPE, false, false)
+			//e.data = message
+			//e.origin = this.origin
+			//e.source = window
+			//win.dispatchEvent(e)
 		}
-	} catch (err) {
-		// Structured clone error
-		err.name === 'DataCloneError'
-		err.code === err.DATA_CLONE_ERR
+	},
 
-		//API error
-		console.error(err, data);
-		//var e;
-		//e = win.document.createEvent('Event')
-		//e.initEvent(Transport.EVENT_TYPE, false, false)
-		//e.data = message
-		//e.origin = this.origin
-		//e.source = window
-		//win.dispatchEvent(e)
+	onMessageEvent: function (handler) {
+		var transport = this
+		var port2 = transport.port2
+		function listener(event) {
+			var messageEvent = new MessageEvent(event)
+			if (
+				('key' in messageEvent) 
+				&& ('sourceChannel' in messageEvent)
+				&& transport.name === messageEvent.sourceChannel //events on the same channel
+				&& transport.key !== messageEvent.key //skip returned back events
+			) {
+				handler(messageEvent)
+			}
+		}
+		port2.removeEventListener(Transport.EVENT_TYPE, transport.listener)
+		port2.addEventListener(Transport.EVENT_TYPE, listener)
+		transport.listener = listener
+	},
+
+	close: function () {
+		this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
+		this.listener = null
 	}
 }
-
-Transport.prototype.onMessageEvent = function (handler) {
-	var transport = this
-	var port2 = this.port2
-	function listener(event) {
-		var messageEvent = new MessageEvent(event)
-		if (
-			// (
-			// 	event.source !== port2
-			// 	&& locationOrigin === event.origin
-			// )
-			('key' in messageEvent) 
-			&& ('sourceChannel' in messageEvent)
-			&& transport.name === messageEvent.sourceChannel //events on the same channel
-			&& transport.key !== messageEvent.key //skip returned back events
-		) {
-			handler(messageEvent)
-		}
-	}
-	port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
-	port2.addEventListener(Transport.EVENT_TYPE, listener)
-	this.listener = listener
-}
-
-Transport.prototype.close = function () {
-	this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
-	this.listener = null
-}
-
 
 module.exports = Transport

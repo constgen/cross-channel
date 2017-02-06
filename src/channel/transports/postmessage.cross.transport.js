@@ -31,7 +31,7 @@ Todo:
 function Transport(name) {
 	this.port1 = window.top
 	this.port2 = global
-	this.origin = '*' //location = window.location, location && (location.origin || (location.protocol + '//' + location.host)) || '*'
+	this.origin = '*'
 	this.listener = null
 	this.name = name
 	this.key = generateRandomKey()
@@ -40,45 +40,46 @@ function Transport(name) {
 Transport.supported = Boolean(global.postMessage)
 Transport.EVENT_TYPE = 'message'
 
-Transport.prototype.send = function (data) {
-	var origin = this.origin
-	var message = new Message(data, this)
-	var windows = getCrossChildWindows(this.port1)
-	var index = -1
+Transport.prototype = {
+	send: function (data) {
+		var origin = this.origin
+		var message = new Message(data, this)
+		var windows = getCrossChildWindows(this.port1)
+		var index = -1
 
-	this.port1.postMessage(message, origin) //always send message to a top window
-	while (++index in windows) {
-		windows[index].postMessage(message, origin)
-	}
-}
-
-Transport.prototype.onMessageEvent = function (handler) {
-	var transport = this
-	var port2 = this.port2
-	function listener(event) {
-		var messageEvent = new MessageEvent(event)
-		if (
-			(
-				event.source === port2
-				|| locationOrigin !== event.origin
-			)
-			&& ('key' in messageEvent)
-			&& ('sourceChannel' in messageEvent)
-			&& transport.name === messageEvent.sourceChannel //events on the same channel
-			&& transport.key !== messageEvent.key //skip returned back events
-		) {
-			handler(messageEvent)
+		this.port1.postMessage(message, origin) //always send message to a top window
+		while (++index in windows) {
+			windows[index].postMessage(message, origin)
 		}
+	},
+
+	onMessageEvent: function (handler) {
+		var transport = this
+		var port2 = this.port2
+		function listener(event) {
+			var messageEvent = new MessageEvent(event)
+			if (
+				(
+					event.source === port2
+					|| locationOrigin !== event.origin
+				)
+				&& ('key' in messageEvent)
+				&& ('sourceChannel' in messageEvent)
+				&& transport.name === messageEvent.sourceChannel //events on the same channel
+				&& transport.key !== messageEvent.key //skip returned back events
+			) {
+				handler(messageEvent)
+			}
+		}
+		port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
+		port2.addEventListener(Transport.EVENT_TYPE, listener)
+		this.listener = listener
+	},
+
+	close: function () {
+		this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
+		this.listener = null
 	}
-	port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
-	port2.addEventListener(Transport.EVENT_TYPE, listener)
-	this.listener = listener
 }
-
-Transport.prototype.close = function () {
-	this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
-	this.listener = null
-}
-
 
 module.exports = Transport
