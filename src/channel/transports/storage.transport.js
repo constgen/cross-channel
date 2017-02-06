@@ -4,7 +4,7 @@ var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
 var generateRandomKey = require('../../utils/generate-random-key.js')
 var environment = require('../../utils/environment.js')
-var locationOrigin = require('../../utils/location-origin.js')
+var locationOrigin = require('../../services/location.js').origin
 
 var window = environment.window
 var storageSupported = (function () {

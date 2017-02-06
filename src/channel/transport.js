@@ -1,14 +1,12 @@
 'use strict'
 
 var PostMessageCrossTransport = require('./transports/postmessage.cross.transport.js')
-
 var PostMessageTransport = require('./transports/postmessage.transport.js')
 var NwTransport = require('./transports/nw.transport.js')
 var BlankTransport = require('./transports/blank.transport.js')
 var ExtensionTransport = require('./transports/extension.transport.js')
 var BroadcastChannelTransport = require('./transports/broadcastchannel.transport.js')
 var StorageTransport = require('./transports/storage.transport.js')
-
 
 var SameOrigin = (function () {
 	switch (true) {
