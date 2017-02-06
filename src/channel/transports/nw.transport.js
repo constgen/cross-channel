@@ -3,7 +3,7 @@
 var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
 var generateRandomKey = require('../../utils/generate-random-key.js')
-var getAllChildWindows = require('../../utils/get-all-child-windows.js')
+var getAllWindows = require('../../utils/frames.js').getAll
 var environment = require('../../utils/environment.js')
 
 /*
@@ -83,7 +83,7 @@ Transport.prototype.send = function (data) {
 	getNWWindowThen(function (nwWindow) {
 		var browserWindow = transport.port
 		var topBrowserWindow = browserWindow.top
-		var browserFrames = topBrowserWindow && [topBrowserWindow].concat(getAllChildWindows(topBrowserWindow)) || [];
+		var browserFrames = getAllWindows(topBrowserWindow)
 
 		// try {
 		// 	if (global.__nwWindowsStore) {
@@ -93,7 +93,7 @@ Transport.prototype.send = function (data) {
 		// 			})
 		// 			.map(function(nwWindow) {
 		// 				var browserWindow = nwWindow.window;
-		// 				return browserWindow.top && [browserWindow.top].concat(channel.getAllChildWindows(browserWindow.top)) || []
+		// 				return getAllWindows(browserWindow.top)
 		// 			})
 		// 			.reduce(function(allBrowserWindows, browserWindows) {
 		// 				return allBrowserWindows.concat(browserWindows)

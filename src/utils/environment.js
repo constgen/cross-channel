@@ -21,10 +21,10 @@
 			|| ('node-webkit' in global.process.versions)
 		)
 	)
-	var isExtension = (
-		window.top 
-		&& /^chrome-extension:\/\//.test(window.top.location.href)
-	)
+	// var isExtension = (
+	// 	window.top 
+	// 	&& /^chrome-extension:\/\//.test(window.top.location)
+	// )
 
 	//export
 	exports.window = window
@@ -32,8 +32,8 @@
 	exports.location = location
 	exports.is = {
 		node: isNode,
-		nw: isNW,
-		extension: isExtension
+		nw: isNW
+		//extension: isExtension
 	}
 	exports.undefined = undefined
 } (this, (typeof global !== 'undefined') ? global : null, (typeof window !== 'undefined') ? window : null)
