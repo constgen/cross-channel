@@ -7,6 +7,7 @@ var BlankTransport = require('./transports/blank.transport.js')
 var ExtensionTransport = require('./transports/extension.transport.js')
 var BroadcastChannelTransport = require('./transports/broadcastchannel.transport.js')
 var StorageTransport = require('./transports/storage.transport.js')
+var DOMEventTransport = require('./transports/dom-event.transport.js')
 
 var SameOrigin = (function () {
 	switch (true) {
@@ -15,6 +16,7 @@ var SameOrigin = (function () {
 		case StorageTransport.supported: return StorageTransport
 		case NwTransport.supported: return NwTransport
 		case PostMessageTransport.supported: return PostMessageTransport
+		case DOMEventTransport.supported: return DOMEventTransport
 		default: return BlankTransport
 	}
 }())
