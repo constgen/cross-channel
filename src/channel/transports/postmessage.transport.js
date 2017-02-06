@@ -45,27 +45,9 @@ Transport.prototype = {
 		var message = new Message(data, this)
 		var windows = getAllWindows(this.port1)
 		var index = -1
-		var win
 
-		try {
-			while (++index in windows) {
-				win = windows[index]
-				win.postMessage(message, origin)
-			}
-		} catch (err) {
-			// Structured clone error
-			err.name === 'DataCloneError'
-			err.code === err.DATA_CLONE_ERR
-
-			//API error
-			console.error(err, data);
-			//var e;
-			//e = win.document.createEvent('Event')
-			//e.initEvent(Transport.EVENT_TYPE, false, false)
-			//e.data = message
-			//e.origin = this.origin
-			//e.source = window
-			//win.dispatchEvent(e)
+		while (++index in windows) {
+			windows[index].postMessage(message, origin)
 		}
 	},
 

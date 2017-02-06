@@ -64,9 +64,9 @@ Transport.prototype = {
 		message.changeTrigger = generateRandomKey()
 		var port1 = this.port1
 		var port2 = this.port2
+		var messageJSON = message.asJSON()
 
 		setTimeout(function () {
-			var messageJSON = message.asJSON()
 			var storageEvent = new StorageEvent(Transport.EVENT_TYPE, { newValue: messageJSON })
 			try {
 				port1.setItem(Transport.STORAGE_KEY, messageJSON)
