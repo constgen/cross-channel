@@ -13,6 +13,7 @@ var storageSupported = (function () {
 } ())
 var URL = (typeof window.URL === 'function') && window.URL
 var StorageEvent = window.StorageEvent
+var latestEventData
 
 //IE and Edge fix, Opera <=12 fix
 if (typeof StorageEvent === 'object' || StorageEvent.length === 0) {
@@ -35,10 +36,9 @@ if (typeof StorageEvent === 'object' || StorageEvent.length === 0) {
 2. Firefox dispatches event on `body`
 3. IE 8 doesn't have `key` and `newValue` properties in an event. if (document.documentMode < 9)
 4. In iOS event is not fired between tabs
-5. Old Firefox and IE may dispath event on the same context
+5. Edge doesn't dispatch event in frames of the current window
 6. IE 10-11 dispatches event before storage modification and `newValue` is not new but old
-7. IE 10-11 work very bad with iframes
-8. IE 11 may dispatch event twice in an iframe
+7. IE 10-11 doesn't dispatch event in frames of the second tab
 
 Links:
 * http://blogs.msdn.com/b/ieinternals/archive/2009/09/16/bugs-in-ie8-support-for-html5-postmessage-sessionstorage-and-localstorage.aspx
@@ -83,15 +83,18 @@ Transport.prototype = {
 		var port2 = this.port2
 		function listener(event) {
 			event.data = event.newValue
-			var eventOrigin = URL && event.url && new URL(event.url).origin || locationOrigin //fix for some specific issues when 'storage' event is dispached across origins
+			event.origin = URL && event.url && new URL(event.url).origin || locationOrigin //fix for some specific issues when 'storage' event is dispached across origins
 			var messageEvent = new MessageEvent(event)
+			
 			if (
 				('key' in messageEvent)
 				&& ('sourceChannel' in messageEvent)
 				&& transport.name === messageEvent.sourceChannel //events on the same channel
 				&& transport.key !== messageEvent.key //skip returned back events
-				&& eventOrigin === locationOrigin
+				&& latestEventData !== event.data
+				&& event.origin === locationOrigin
 			) {
+				latestEventData = event.data //fix previous IE double event handling
 				handler(messageEvent)
 			}
 		}
