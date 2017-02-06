@@ -1,5 +1,7 @@
 'use strict'
 
+var isDOMNode = require('../utils/is-dom-node.js')
+
 /**
  * Message entity constructor
  * @param {*} data - any data to be transfered
@@ -12,15 +14,13 @@ function Message(data, source){
 	this.sourceChannel = source.name
 }
 
-// Message.prototype.toJSON = function(){
-// 	return this
-// }
 Message.prototype.asJSON = function(){
+	if (isDOMNode(this.data)) {
+		throw new DOMException('Failed to execute "postMessage" on "CrossChannel": ' + this.data.constructor.name + ' object could not be cloned.', 'DataCloneError')
+	}
 	return JSON.stringify(this)
 }
 
-// _createEvent = function (event) {
-// 	return '__connexionEvent__:' + JSON.stringify(event);
-// }
+Message.prototype.toString = Message.prototype.asJSON
 
 module.exports = Message
