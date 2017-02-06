@@ -14,7 +14,6 @@ Known issues:
 1. Safari detection of a structured clonning support when DOM is sent. String(e.data).indexOf("Null") !== -1. See https://gist.github.com/ryanseddon/4583494
 2. IE8's events are triggered synchronously, which may lead to to unexpected results.
 3. Firefox 41 and below do not support sending File/Blob objects see bug
-4. Internet Explorer 8 and 9, and Firefox versions 6.0 (Opera says that 3.6) and below only support strings as postMessage's message. References: https://dev.opera.com/articles/view/window-postmessage-messagechannel/#crossdoc
 5. Probbaly: IE<=9 doesn't like you to call postMessage as soon as page loads. Use a setTimeout to wait one or two seconds before calling postMessage.
 6. IE8-11 doen't support postMessage on different tabs and origins.
 7. Worker structured clonning support (from MDN): Chrome >=13, Firefox >=8, IE>=10.0, Opera >=11.5, Safari>=6
