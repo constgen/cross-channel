@@ -12,11 +12,11 @@ var storageSupported = (function () {
 	catch (e) { return false }
 } ())
 var URL = (typeof window.URL === 'function') && window.URL
-var StorageEvent = window.StorageEvent
+var StorageEvent = window.StorageEvent || {}
 var latestEventData
 
 //IE and Edge fix, Opera <=12 fix
-if (typeof StorageEvent === 'object' || StorageEvent.length === 0) {
+if (storageSupported && (typeof StorageEvent === 'object' || StorageEvent.length === 0)) {
 	StorageEvent = function (eventType, params) {
 		params = params || {}
 		var event = document.createEvent('Event')
