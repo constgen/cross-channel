@@ -19,7 +19,7 @@ Cross origin messaging channel
 | Android Opera >=15|    +   |   +    |   +  |   |
 | Opera mini        |    +   |   +    |   +  |   |
 | Safari >=5        |    +   |   +    |   +  |   |
-| iOS Safari        |        |   -    |   -  |   |
+| iOS Safari        |    +   |   +    |   +  |   |
 | Android browser   |        |        |      |   |
 | IE >=9            |    +   |   +    |  +-  |   |
 | Mobile IE >=10    |        |        |      |   |
