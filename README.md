@@ -26,4 +26,4 @@ Cross origin messaging channel
 | Edge              |    +   |   +-   |  +   |   |
 | Chrome extension  |    +   |   +    |  +   |   |
 | WebExtension      |    +   |   +    |  +   |   |
-|                   |        |        |      |   |
+| Worker            |        |        |      |   |
