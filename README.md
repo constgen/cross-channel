@@ -36,7 +36,16 @@ Sends a message to all other channel instances with the same name. Message can't
 
 ### `channel.on('message', handler: Function)`
 
-Attaches listener to a 'message' event.
+Attaches listener to a 'message' event. The handler is called only when message is sent from another instances with the same channel name, but not called when `postmessage()` is called on the same instance. The callback is executed with a single argument of MessageEvent object. The **event** interface:
+
+	MessageEvent {
+		type: String
+		data: Object|Boolean|String|Number|Null|Undefined
+		timeStamp: Number
+		origin: String
+		key: String
+		sourceChannel: String
+	}
 
 ### `channel.once('message', handler: Function)`
 
@@ -44,7 +53,7 @@ Attaches listener that is executed only once for the very first 'message' event.
 
 ### `channel.addEventListener('message', handler: Function)`
 
-Alias to `channel.on()`. Necessary for a compatibility with **BroadcastChannel API** when used as a polifyll.
+The alias to `channel.on()`. Necessary for a compatibility with **BroadcastChannel API** when used as a polifyll.
 
 ### `channel.removeEventListener('message', handler: Function)`
 
@@ -80,27 +89,31 @@ Removes all channel event handlers and closes a channel to reveal memory.
 
 ## Compatibility
 <!-- http://www.tablesgenerator.com/markdown_tables -->
-| Platforms         |  self  | frames | tabs |   |
-|-------------------|:------:|:------:|:----:|---|
-| NodeJS >=0.8      |    -   |   -    |   -  |   |
-| Node-webkit <=0.11|    +   |   +    |   -  |   |
-| NWJS >=0.13       |    +   |   +    |   +  |   |
-| Electron          |    -   |   -    |   -  |   |
-| Firefox           |    +   |   +    |   +  |   |
-| Android Firefox   |    +   |   +    |   +  |   |
-| Chrome            |    +   |   +    |   +  |   |
-| Android Chrome    |    +   |   +    |   +  |   |
-| Opera <=9         |        |   -    |   -  |   |
-| Opera <=12        |    +   |   +    |   +  |   |
-| Opera >=15        |    +   |   +    |   +  |   |
-| Android Opera >=15|    +   |   +    |   +  |   |
-| Opera mini        |    +   |   +    |   +  |   |
-| Safari >=5        |    +   |   +    |   +  |   |
-| iOS Safari        |    +   |   +    |   +  |   |
-<!--| Android browser   |        |        |      |   |-->
-| IE >=9            |    +   |   +    |  +-  |   |
-| Mobile IE >=10    |        |        |      |   |
-| Edge              |    +   |   +-   |  +   |   |
-| Chrome extension  |    +   |   +    |  +   |   |
-| WebExtension      |    +   |   +    |  +   |   |
-<!--| Worker            |        |        |      |   |-->
+| Platforms         |  self  | frames | tabs |
+|-------------------|:------:|:------:|:----:|
+| NodeJS >=0.8      |    -   |   -    |   -  |
+| Node-webkit <=0.11|    +   |   +    |   -  |
+| NWJS >=0.13       |    +   |   +    |   +  |
+| Electron          |    -   |   -    |   -  |
+| Firefox           |    +   |   +    |   +  |
+| Android Firefox   |    +   |   +    |   +  |
+| Chrome            |    +   |   +    |   +  |
+| Android Chrome    |    +   |   +    |   +  |
+| Opera <=9         |        |   -    |   -  |
+| Opera <=12        |    +   |   +    |   +  |
+| Opera >=15        |    +   |   +    |   +  |
+| Android Opera >=15|    +   |   +    |   +  |
+| Opera mini        |    +   |   +    |   +  |
+| Safari >=5        |    +   |   +    |   +  |
+| iOS Safari        |    +   |   +    |   +  |
+| Android browser   |        |        |      |
+| IE >=9            |    +   |   +    |  +-  |
+| Mobile IE >=10    |        |        |      |
+| Edge              |    +   |   +-   |  +   |
+| Chrome extension  |    +   |   +    |  +   |
+| WebExtension      |    +   |   +    |  +   |
+| Worker            |        |        |      |
+
+<!--## Polyfills that may be required for old platforms:
+- Object.create() (IE <=8, FF <=3.6, SF <5, iOS <=5.1, CH <6, OP <=11.50)-->
+
