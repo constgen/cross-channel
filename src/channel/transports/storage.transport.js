@@ -13,7 +13,6 @@ var storageSupported = (function () {
 } ())
 var URL = (typeof window.URL === 'function') && window.URL
 var StorageEvent = window.StorageEvent || {}
-var latestEventData
 
 //IE and Edge fix, Opera <=12 fix
 if (storageSupported && (typeof StorageEvent === 'object' || StorageEvent.length === 0)) {
@@ -52,6 +51,7 @@ function Transport(name) {
 	this.listener = null
 	this.name = name
 	this.key = generateRandomKey()
+	this.latestEventData = undefined
 }
 
 Transport.supported = Boolean(storageSupported)
@@ -91,10 +91,10 @@ Transport.prototype = {
 				&& ('sourceChannel' in messageEvent)
 				&& transport.name === messageEvent.sourceChannel //events on the same channel
 				&& transport.key !== messageEvent.key //skip returned back events
-				&& latestEventData !== event.data
+				&& transport.latestEventData !== event.data
 				&& event.origin === locationOrigin
 			) {
-				latestEventData = event.data //fix previous IE double event handling
+				transport.latestEventData = event.data //fix previous IE double event handling
 				handler(messageEvent)
 			}
 		}
@@ -107,6 +107,7 @@ Transport.prototype = {
 	close: function () {
 		this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
 		this.listener = null
+		this.latestEventData = undefined
 	}
 }
 
