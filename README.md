@@ -6,23 +6,29 @@ Cross origin messaging channel. Sends messages between different JavaScript cont
 
 In a **Browser** environment:
 
-	<script src="path/to/connexionjs/dist/cross-channel.min.js"></script>
-	<script>
-		var channel = new CrossChannel('name')
-		channel.on('message', handler)
-		channel.postMessage(message)
-	</script>
-
-In a **CommonJS** environment first install it from NPM:
-
-	$ npm install cross-channel
-
-then in the source code use
-
-	var CrossChannel = require('cross-channel')
+```html
+<script src="path/to/connexionjs/dist/cross-channel.min.js"></script>
+<script>
 	var channel = new CrossChannel('name')
 	channel.on('message', handler)
 	channel.postMessage(message)
+</script>
+```
+
+In a **CommonJS** environment first install it from NPM:
+
+```
+$ npm install cross-channel
+```
+
+then in the source code use
+
+```js
+var CrossChannel = require('cross-channel')
+var channel = new CrossChannel('name')
+channel.on('message', handler)
+channel.postMessage(message)
+```
 
 ## Reference
 
@@ -38,14 +44,16 @@ Sends a message to all other channel instances with the same name. Message can't
 
 Attaches listener to a 'message' event. The handler is called only when message is sent from another instances with the same channel name, but not called when `postmessage()` is called on the same instance. The callback is executed with a single argument of MessageEvent object. The **event** interface:
 
-	MessageEvent {
-		type: String
-		data: Object|Boolean|String|Number|Null|Undefined
-		timeStamp: Number
-		origin: String
-		key: String
-		sourceChannel: String
-	}
+```
+MessageEvent {
+	type: String
+	data: Object|Boolean|String|Number|Null|Undefined
+	timeStamp: Number
+	origin: String
+	key: String
+	sourceChannel: String
+}
+```
 
 ### `channel.once('message', handler: Function)`
 
@@ -68,13 +76,16 @@ Removes all event handlers of a 'message' event.
 Removes all channel event handlers and closes a channel to reveal memory.
 
 ## Examle
-	var channelGreen1 = new CrossChannel('green')
-	var channelGreen2 = new CrossChannel('green')
 
-	channelGreen1.postMessage({text: 'message'})
-	channelGreen2.on('message', function(event){
-		console.log(event.data) // -> {text: 'message'}
-	})
+```js
+var channelGreen1 = new CrossChannel('green')
+var channelGreen2 = new CrossChannel('green')
+
+channelGreen1.postMessage({text: 'message'})
+channelGreen2.on('message', function(event){
+	console.log(event.data) // -> {text: 'message'}
+})
+```
 
 ## Use cases:
 - need a **BroadcastChannel** polifyll;
