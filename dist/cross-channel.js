@@ -1315,7 +1315,6 @@ $__System.registerDynamic('25', ['18', '19', '1a', '1c', '1d'], true, function (
 	}();
 	var URL = typeof window.URL === 'function' && window.URL;
 	var StorageEvent = window.StorageEvent || {};
-	var latestEventData;
 
 	//IE and Edge fix, Opera <=12 fix
 	if (storageSupported && (typeof StorageEvent === 'object' || StorageEvent.length === 0)) {
@@ -1354,6 +1353,7 @@ $__System.registerDynamic('25', ['18', '19', '1a', '1c', '1d'], true, function (
 		this.listener = null;
 		this.name = name;
 		this.key = generateRandomKey();
+		this.latestEventData = undefined;
 	}
 
 	Transport.supported = Boolean(storageSupported);
@@ -1389,8 +1389,8 @@ $__System.registerDynamic('25', ['18', '19', '1a', '1c', '1d'], true, function (
 
 				if ('key' in messageEvent && 'sourceChannel' in messageEvent && transport.name === messageEvent.sourceChannel //events on the same channel
 				&& transport.key !== messageEvent.key //skip returned back events
-				&& latestEventData !== event.data && event.origin === locationOrigin) {
-					latestEventData = event.data; //fix previous IE double event handling
+				&& transport.latestEventData !== event.data && event.origin === locationOrigin) {
+					transport.latestEventData = event.data; //fix previous IE double event handling
 					handler(messageEvent);
 				}
 			}
@@ -1403,6 +1403,7 @@ $__System.registerDynamic('25', ['18', '19', '1a', '1c', '1d'], true, function (
 		close: function () {
 			this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener);
 			this.listener = null;
+			this.latestEventData = undefined;
 		}
 	};
 

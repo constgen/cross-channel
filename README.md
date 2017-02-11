@@ -100,30 +100,30 @@ channelGreen2.on('message', function(event){
 
 ## Compatibility
 <!-- http://www.tablesgenerator.com/markdown_tables -->
-| Platforms         |  self  | frames | tabs |
-|-------------------|:------:|:------:|:----:|
-| NodeJS >=0.8      |    -   |   -    |   -  |
-| Node-webkit <=0.11|    +   |   +    |   -  |
-| NWJS >=0.13       |    +   |   +    |   +  |
-| Electron          |    -   |   -    |   -  |
-| Firefox           |    +   |   +    |   +  |
-| Android Firefox   |    +   |   +    |   +  |
-| Chrome            |    +   |   +    |   +  |
-| Android Chrome    |    +   |   +    |   +  |
-| Opera <=9         |        |   -    |   -  |
-| Opera <=12        |    +   |   +    |   +  |
-| Opera >=15        |    +   |   +    |   +  |
-| Android Opera >=15|    +   |   +    |   +  |
-| Opera mini        |    +   |   +    |   +  |
-| Safari >=5        |    +   |   +    |   +  |
-| iOS Safari        |    +   |   +    |   +  |
-| Android browser   |        |        |      |
-| IE >=9            |    +   |   +    |  +-  |
-| Mobile IE >=10    |        |        |      |
-| Edge              |    +   |   +-   |  +   |
-| Chrome extension  |    +   |   +    |  +   |
-| WebExtension      |    +   |   +    |  +   |
-| Worker            |        |        |      |
+| Platforms            |  self  | frames | tabs |
+|----------------------|:------:|:------:|:----:|
+| NodeJS >=0.8         |    -   |   -    |   -  |
+| Node-webkit <=0.11   |    +   |   +    |   -  |
+| NWJS >=0.13          |    +   |   +    |   +  |
+| Electron             |    -   |   -    |   -  |
+| Firefox              |    +   |   +    |   +  |
+| Android Firefox      |    +   |   +    |   +  |
+| Chrome               |    +   |   +    |   +  |
+| Android Chrome       |    +   |   +    |   +  |
+| Opera <=9            |    -   |   -    |   -  |
+| Opera <=12           |    +   |   +    |   +  |
+| Opera >=15           |    +   |   +    |   +  |
+| Android Opera >=15   |    +   |   +    |   +  |
+| Opera mini           |    +   |   +    |   +  |
+| Safari >=5           |    +   |   +    |   +  |
+| iOS Safari           |    +   |   +    |   +  |
+| Android Browser >=4.1|    +   |   +    |   +  |
+| IE >=9               |    +   |   +    |  +-  |
+| Mobile IE >=10       |        |        |      |
+| Edge                 |    +   |   +-   |   +  |
+| Chrome extension     |    +   |   +    |   +  |
+| WebExtension         |    +   |   +    |   +  |
+| Worker               |        |        |      |
 
 <!--## Polyfills that may be required for old platforms:
 - Object.create() (IE <=8, FF <=3.6, SF <5, iOS <=5.1, CH <6, OP <=11.50)-->
