@@ -30,5 +30,5 @@ var CrossOrigin = (function () {
 module.exports = {
 	SameOrigin: SameOrigin,
 	CrossOrigin: CrossOrigin
-} 
+}
 

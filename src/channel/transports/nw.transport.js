@@ -65,7 +65,7 @@ function Transport(name) {
 	})
 }
 
-Transport.supported = Boolean(environment.is.node && environment.is.nw)
+Transport.supported = Boolean(environment.is.node && environment.is.nodeWebkit)
 Transport.EVENT_TYPE = 'message'
 
 //computed `this.port`

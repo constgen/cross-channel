@@ -9,22 +9,32 @@
 		&& (global.global === global)		
 		&& (typeof __dirname !== 'undefined')	
 	)
-	// NWJS context
-	var isNW = (
+	// Node-webkit context
+	var isNodeWebkit = (
 		('process' in global)
 		&& (
 			('_nw_app' in global.process)
 			|| ('__node_webkit' in global.process)
-			|| ('__nwjs' in global.process)
-			|| ('nw' in global.process.versions)
-			|| ('chromium' in global.process.versions)
 			|| ('node-webkit' in global.process.versions)
 		)
 	)
-	// var isExtension = (
-	// 	window.top 
-	// 	&& /^chrome-extension:\/\//.test(window.top.location)
-	// )
+	// NWJS context
+	var isNW = (
+		('process' in global)
+		&& (
+			('__nwjs' in global.process)
+			|| ('nw' in global.process.versions)
+		)
+	)
+
+	// var isExtension = (function(){
+	// 	try {
+	// 		return Boolean(window.top && window.top.location.protocol === 'chrome-extension:')
+	// 	}
+	// 	catch(err) {
+	// 		return false
+	// 	}
+	// }())
 
 	//export
 	exports.window = window
@@ -32,7 +42,8 @@
 	exports.location = location
 	exports.is = {
 		node: isNode,
-		nw: isNW
+		nw: isNW,
+		nodeWebkit: isNodeWebkit
 		//extension: isExtension
 	}
 	exports.undefined = undefined
