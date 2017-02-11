@@ -713,6 +713,135 @@ $__System.registerDynamic('1e', ['18', '19', '1a', '1b', '1c'], true, function (
 	module.exports = Transport;
 	return module.exports;
 });
+$__System.registerDynamic('1b', ['1c'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var environment = $__require('1c');
+
+	module.exports = {
+		isSameOrigin: function (win, currentWin) {
+			try {
+				if (win.location.origin) {
+					if (environment.is.nw) {
+						return true; //workaround for NWJS app when external origin have full privileges
+					} else {
+						return win.location.origin === currentWin.location.origin;
+					}
+				} else {
+					return win.location.host === currentWin.location.host && win.location.protocol === currentWin.location.protocol;
+				}
+			} catch (err) {
+				return false;
+			}
+		},
+
+		getCrossOriginChildren: function getCrossOriginChildren(topWin) {
+			var crossOriginFrames = [];
+			var frames = topWin.frames;
+			var currentWin = environment.global.window;
+			var win;
+			var i = frames.length;
+			var isSameOrigin = module.exports.isSameOrigin;
+
+			while (i--) {
+				win = frames[i];
+				if (!isSameOrigin(win, currentWin)) {
+					crossOriginFrames.push(win);
+				}
+				//include deeper level frames
+				crossOriginFrames = crossOriginFrames.concat(getCrossOriginChildren(win));
+			}
+
+			return crossOriginFrames;
+		},
+
+		getSameOriginChildren: function getSameOriginChildren(topWin) {
+			var sameOriginFrames = [];
+			var frames = topWin.frames;
+			var currentWin = environment.global.window;
+			var win;
+			var i = frames.length;
+			var isSameOrigin = module.exports.isSameOrigin;
+
+			while (i--) {
+				win = frames[i];
+				if (isSameOrigin(win, currentWin)) {
+					sameOriginFrames.push(win);
+				}
+				//include deeper level frames
+				sameOriginFrames = sameOriginFrames.concat(getSameOriginChildren(win));
+			}
+
+			return sameOriginFrames;
+		},
+
+		/**
+   * Returns a collection of all child frames/iframes windows objects. Takes into a count deeper nested frames.
+   * @param [Window] topWin - Main document window, where to search child frames
+   * @returns [Array] - Array of all child windows.
+   */
+		getAllChildren: function getAllChildren(topWin) {
+			var childFrames = [];
+			var frames = topWin.frames;
+			var win;
+			var i = frames.length;
+
+			while (i--) {
+				win = frames[i];
+				childFrames.push(win);
+				//include deeper level frames
+				childFrames = childFrames.concat(getAllChildren(win));
+			}
+
+			return childFrames;
+		},
+
+		/**
+   * Returns a collection of cross origin frames/iframes windows objects. Takes into a count deeper nested frames.
+   * @param [Window] topWin - Main document window, where to search child frames
+   * @returns [Array] - Array of same origin windows.
+   */
+		getSameOrigin: function (topWin) {
+			var getSameOriginChildren = module.exports.getSameOriginChildren;
+			var isSameOrigin = module.exports.isSameOrigin;
+			var windows = getSameOriginChildren(topWin);
+			var currentWin = environment.global.window;
+			if (isSameOrigin(topWin, currentWin)) {
+				windows.push(topWin);
+			}
+			return windows;
+		},
+
+		/**
+   * Returns a collection of cross origin frames/iframes windows objects. Takes into a count deeper nested frames.
+   * @param [Window] topWin - Main document window, where to search child frames
+   * @returns [Array] - Array of cross origin child windows.
+   */
+		getCrossOrigin: function (topWin) {
+			var getCrossOriginChildren = module.exports.getCrossOriginChildren;
+			var isSameOrigin = module.exports.isSameOrigin;
+			var windows = getCrossOriginChildren(topWin);
+			var currentWin = environment.global.window;
+			if (!isSameOrigin(topWin, currentWin)) {
+				windows.push(topWin);
+			}
+			return windows;
+		},
+
+		getAll: function (topWin) {
+			if (!topWin) {
+				return [];
+			}
+			var children = module.exports.getAllChildren(topWin);
+			var windows = [topWin].concat(children);
+			return windows;
+		}
+	};
+	return module.exports;
+});
 $__System.registerDynamic('1f', ['18', '19', '1a', '1b', '1c'], true, function ($__require, exports, module) {
 	'use strict';
 
@@ -784,7 +913,7 @@ $__System.registerDynamic('1f', ['18', '19', '1a', '1b', '1c'], true, function (
 		});
 	}
 
-	Transport.supported = Boolean(environment.is.node && environment.is.nw);
+	Transport.supported = Boolean(environment.is.node && environment.is.nodeWebkit);
 	Transport.EVENT_TYPE = 'message';
 
 	//computed `this.port`
@@ -1020,7 +1149,151 @@ $__System.registerDynamic('23', ['18', '19', '1c'], true, function ($__require, 
 	module.exports = Transport;
 	return module.exports;
 });
-$__System.registerDynamic('24', ['18', '19', '1a', '1c', '1d'], true, function ($__require, exports, module) {
+$__System.registerDynamic('18', ['1c'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var environment = $__require('1c');
+
+	var window = environment.window;
+	var EventConstructor = window.MessageEvent || Object;
+
+	function MessageEvent(config) {
+		config = config || {};
+		var message = config.data || {};
+
+		if (typeof message === 'string') {
+			try {
+				message = JSON.parse(message);
+			} catch (err) {
+				console.error(err, event);
+			}
+		}
+
+		Object.defineProperties(this, {
+			'type': {
+				value: 'message',
+				writable: false
+			},
+			'data': {
+				value: message.data, //extract usefull data from a message
+				writable: false
+			},
+			'timeStamp': {
+				value: config.timeStamp || 0,
+				writable: false
+			},
+			'origin': {
+				value: config.origin || config.url || '',
+				writable: false
+			},
+			'key': {
+				value: message.key,
+				writable: false
+			},
+			'sourceChannel': {
+				value: message.sourceChannel,
+				writable: false
+			}
+		});
+	}
+
+	MessageEvent.prototype = Object.create(EventConstructor.prototype, { constructor: { writable: true, configurable: true, value: MessageEvent } });
+
+	module.exports = MessageEvent;
+	return module.exports;
+});
+$__System.registerDynamic('21', [], true, function ($__require, exports, module) {
+  'use strict';
+
+  var define,
+      global = this || self,
+      GLOBAL = global;
+  module.exports = function () {};
+  return module.exports;
+});
+$__System.registerDynamic('24', ['21'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var noop = $__require('21');
+
+	var DOMConstructor = typeof Node === 'function' ? Node : noop;
+
+	module.exports = function (element) {
+		return element instanceof DOMConstructor;
+	};
+	return module.exports;
+});
+$__System.registerDynamic('19', ['24'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var isDOMNode = $__require('24');
+
+	/**
+  * Message entity constructor
+  * @param {*} data - any data to be transfered
+  * @param {Object} [source] - source sent from
+  */
+	function Message(data, source) {
+		source = source || {};
+		this.data = data;
+		this.key = source.key;
+		this.sourceChannel = source.name;
+	}
+
+	Message.prototype.asJSON = function () {
+		if (isDOMNode(this.data)) {
+			throw new DOMException('Failed to execute "postMessage" on "CrossChannel": ' + this.data.constructor.name + ' object could not be cloned.', 'DataCloneError');
+		}
+		return JSON.stringify(this);
+	};
+
+	Message.prototype.toString = Message.prototype.asJSON;
+
+	module.exports = Message;
+	return module.exports;
+});
+$__System.registerDynamic('1a', [], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	module.exports = function generateRandomKey() {
+		return Math.round(Math.random() * Math.pow(10, 15));
+	};
+	return module.exports;
+});
+$__System.registerDynamic('1d', ['1c'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var define,
+	    global = this || self,
+	    GLOBAL = global;
+	var environment = $__require('1c');
+
+	var global = environment.global;
+
+	module.exports = {
+		get origin() {
+			var window = global.window;
+			var location = window && window.location;
+			var origin = location && (location.origin || location.protocol + '//' + location.host);
+			return origin;
+		},
+		set origin(value) {}
+	};
+	return module.exports;
+});
+$__System.registerDynamic('25', ['18', '19', '1a', '1c', '1d'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -1041,11 +1314,11 @@ $__System.registerDynamic('24', ['18', '19', '1a', '1c', '1d'], true, function (
 		}
 	}();
 	var URL = typeof window.URL === 'function' && window.URL;
-	var StorageEvent = window.StorageEvent;
+	var StorageEvent = window.StorageEvent || {};
 	var latestEventData;
 
 	//IE and Edge fix, Opera <=12 fix
-	if (typeof StorageEvent === 'object' || StorageEvent.length === 0) {
+	if (storageSupported && (typeof StorageEvent === 'object' || StorageEvent.length === 0)) {
 		StorageEvent = function (eventType, params) {
 			params = params || {};
 			var event = document.createEvent('Event');
@@ -1136,373 +1409,7 @@ $__System.registerDynamic('24', ['18', '19', '1a', '1c', '1d'], true, function (
 	module.exports = Transport;
 	return module.exports;
 });
-$__System.registerDynamic('18', ['1c'], true, function ($__require, exports, module) {
-	'use strict';
-
-	var define,
-	    global = this || self,
-	    GLOBAL = global;
-	var environment = $__require('1c');
-
-	var window = environment.window;
-	var EventConstructor = window.MessageEvent || Object;
-
-	function MessageEvent(config) {
-		config = config || {};
-		var message = config.data || {};
-
-		// if (!message) {
-		// 	return this; //EXIT, if message is empty
-		// }
-
-		if (typeof message === 'string') {
-			try {
-				message = JSON.parse(message);
-			} catch (err) {
-				console.error(err, event);
-			}
-		}
-
-		//connextionMessageRegExp = /^__([A-Za-z]+?)__:/;
-		// connectionCretaria,
-		// connectionType,
-		// connectionMatch,
-		// data;
-
-		// //parse message without try-catch
-		// if (message && typeof message === 'string') {
-		// 	connectionMatch = message.match(connextionMessageRegExp);
-
-		// 	if (connectionMatch) {
-		// 		connectionCretaria = connectionMatch[0];
-		// 		connectionType = connectionMatch[1];
-		// 		if (connectionType === messageType) {
-		// 			data = JSON.parse(message.substr(connectionCretaria.length));
-		// 		}
-		// 	}
-		// }
-
-		Object.defineProperties(this, {
-			'type': {
-				value: 'message',
-				writable: false
-			},
-			'data': {
-				value: message.data, //extract usefull data from a message
-				writable: false
-			},
-			'timeStamp': {
-				value: config.timeStamp || 0,
-				writable: false
-			},
-			'origin': {
-				value: config.origin || config.url || '',
-				writable: false
-			},
-			'key': {
-				value: message.key,
-				writable: false
-			},
-			'sourceChannel': {
-				value: message.sourceChannel,
-				writable: false
-			}
-		});
-	}
-
-	MessageEvent.prototype = Object.create(EventConstructor.prototype);
-	MessageEvent.prototype.constructor = MessageEvent;
-
-	module.exports = MessageEvent;
-	return module.exports;
-});
-$__System.registerDynamic('21', [], true, function ($__require, exports, module) {
-  'use strict';
-
-  var define,
-      global = this || self,
-      GLOBAL = global;
-  module.exports = function () {};
-  return module.exports;
-});
-$__System.registerDynamic('25', ['21'], true, function ($__require, exports, module) {
-	'use strict';
-
-	var define,
-	    global = this || self,
-	    GLOBAL = global;
-	var noop = $__require('21');
-
-	var DOMConstructor = typeof Node === 'function' ? Node : noop;
-
-	module.exports = function (element) {
-		return element instanceof DOMConstructor;
-	};
-	return module.exports;
-});
-$__System.registerDynamic('19', ['25'], true, function ($__require, exports, module) {
-	'use strict';
-
-	var define,
-	    global = this || self,
-	    GLOBAL = global;
-	var isDOMNode = $__require('25');
-
-	/**
-  * Message entity constructor
-  * @param {*} data - any data to be transfered
-  * @param {Object} [source] - source sent from
-  */
-	function Message(data, source) {
-		source = source || {};
-		this.data = data;
-		this.key = source.key;
-		this.sourceChannel = source.name;
-	}
-
-	Message.prototype.asJSON = function () {
-		if (isDOMNode(this.data)) {
-			throw new DOMException('Failed to execute "postMessage" on "CrossChannel": ' + this.data.constructor.name + ' object could not be cloned.', 'DataCloneError');
-		}
-		return JSON.stringify(this);
-	};
-
-	Message.prototype.toString = Message.prototype.asJSON;
-
-	module.exports = Message;
-	return module.exports;
-});
-$__System.registerDynamic('1a', [], true, function ($__require, exports, module) {
-	'use strict';
-
-	var define,
-	    global = this || self,
-	    GLOBAL = global;
-	module.exports = function generateRandomKey() {
-		return Math.round(Math.random() * Math.pow(10, 15));
-	};
-	return module.exports;
-});
-$__System.registerDynamic('1b', ['1c'], true, function ($__require, exports, module) {
-	'use strict';
-
-	var define,
-	    global = this || self,
-	    GLOBAL = global;
-	var environment = $__require('1c');
-
-	module.exports = {
-		isSameOrigin: function (win, currentWin) {
-			try {
-				if (win.location.origin) {
-					return win.location.origin === currentWin.location.origin;
-				} else {
-					return win.location.host === currentWin.location.host && win.location.protocol === currentWin.location.protocol;
-				}
-			} catch (err) {
-				return false;
-			}
-		},
-
-		getCrossOriginChildren: function getCrossOriginChildren(topWin) {
-			var crossOriginFrames = [];
-			var frames = topWin.frames;
-			var currentWin = environment.global.window;
-			var win;
-			var i = frames.length;
-			var isSameOrigin = module.exports.isSameOrigin;
-
-			while (i--) {
-				win = frames[i];
-				if (!isSameOrigin(win, currentWin)) {
-					crossOriginFrames.push(win);
-				}
-				//include deeper level frames
-				crossOriginFrames = crossOriginFrames.concat(getCrossOriginChildren(win));
-			}
-
-			return crossOriginFrames;
-		},
-
-		getSameOriginChildren: function getSameOriginChildren(topWin) {
-			var sameOriginFrames = [];
-			var frames = topWin.frames;
-			var currentWin = environment.global.window;
-			var win;
-			var i = frames.length;
-			var isSameOrigin = module.exports.isSameOrigin;
-
-			while (i--) {
-				win = frames[i];
-				if (isSameOrigin(win, currentWin)) {
-					sameOriginFrames.push(win);
-				}
-				//include deeper level frames
-				sameOriginFrames = sameOriginFrames.concat(getSameOriginChildren(win));
-			}
-
-			return sameOriginFrames;
-		},
-
-		/**
-   * Returns a collection of all child frames/iframes windows objects. Takes into a count deeper nested frames.
-   * @param [Window] topWin - Main document window, where to search child frames
-   * @returns [Array] - Array of all child windows.
-   */
-		getAllChildren: function getAllChildren(topWin) {
-			var childFrames = [];
-			var frames = topWin.frames;
-			var win;
-			var i = frames.length;
-
-			while (i--) {
-				win = frames[i];
-				childFrames.push(win);
-				//include deeper level frames
-				childFrames = childFrames.concat(getAllChildren(win));
-			}
-
-			return childFrames;
-		},
-
-		/**
-   * Returns a collection of cross origin frames/iframes windows objects. Takes into a count deeper nested frames.
-   * @param [Window] topWin - Main document window, where to search child frames
-   * @returns [Array] - Array of same origin windows.
-   */
-		getSameOrigin: function (topWin) {
-			var getSameOriginChildren = module.exports.getSameOriginChildren;
-			var isSameOrigin = module.exports.isSameOrigin;
-			var windows = getSameOriginChildren(topWin);
-			var currentWin = environment.global.window;
-			if (isSameOrigin(topWin, currentWin)) {
-				windows.push(topWin);
-			}
-			return windows;
-		},
-
-		/**
-   * Returns a collection of cross origin frames/iframes windows objects. Takes into a count deeper nested frames.
-   * @param [Window] topWin - Main document window, where to search child frames
-   * @returns [Array] - Array of cross origin child windows.
-   */
-		getCrossOrigin: function (topWin) {
-			var getCrossOriginChildren = module.exports.getCrossOriginChildren;
-			var isSameOrigin = module.exports.isSameOrigin;
-			var windows = getCrossOriginChildren(topWin);
-			var currentWin = environment.global.window;
-			if (!isSameOrigin(topWin, currentWin)) {
-				windows.push(topWin);
-			}
-			return windows;
-		},
-
-		getAll: function (topWin) {
-			if (!topWin) {
-				return [];
-			}
-			var children = module.exports.getAllChildren(topWin);
-			var windows = [topWin].concat(children);
-			return windows;
-		}
-	};
-	return module.exports;
-});
-$__System.registerDynamic('1d', ['1c'], true, function ($__require, exports, module) {
-	'use strict';
-
-	var define,
-	    global = this || self,
-	    GLOBAL = global;
-	var environment = $__require('1c');
-
-	var global = environment.global;
-
-	module.exports = {
-		get origin() {
-			var window = global.window;
-			var location = window && window.location;
-			var origin = location && location.origin || location.protocol + '//' + location.host;
-			return origin;
-		},
-		set origin(value) {}
-	};
-	return module.exports;
-});
-$__System.registerDynamic('26', ['18', '19', '1a', '1b', '1c', '1d'], true, function ($__require, exports, module) {
-	'use strict';
-
-	var define,
-	    global = this || self,
-	    GLOBAL = global;
-	var MessageEvent = $__require('18');
-	var Message = $__require('19');
-	var generateRandomKey = $__require('1a');
-	var getOriginWindows = $__require('1b').getSameOrigin;
-	var environment = $__require('1c');
-	var locationOrigin = $__require('1d').origin;
-
-	var window = environment.window;
-
-	/*
- Known issues:
- 
- 
- */
-
-	function Transport(name) {
-		this.port1 = window.top;
-		this.port2 = window;
-		this.listener = null;
-		this.origin = locationOrigin;
-		this.name = name;
-		this.key = generateRandomKey();
-	}
-
-	Transport.supported = Boolean(window.dispatchEvent);
-	Transport.EVENT_TYPE = 'cross-message';
-
-	Transport.prototype = {
-		send: function (data) {
-			var windows = getOriginWindows(this.port1);
-			var index = -1;
-			var event = window.document.createEvent('Event');
-			event.initEvent(Transport.EVENT_TYPE, false, false);
-			event.data = new Message(data, this);
-			event.origin = this.origin;
-			event.source = this.port2;
-
-			while (++index in windows) {
-				windows[index].dispatchEvent(event);
-			}
-		},
-
-		onMessageEvent: function (handler) {
-			var transport = this;
-			var port2 = transport.port2;
-			function listener(event) {
-				var messageEvent = new MessageEvent(event);
-				if ('key' in messageEvent && 'sourceChannel' in messageEvent && transport.name === messageEvent.sourceChannel //events on the same channel
-				&& transport.key !== messageEvent.key //skip returned back events
-				) {
-						handler(messageEvent);
-					}
-			}
-			port2.removeEventListener(Transport.EVENT_TYPE, transport.listener);
-			port2.addEventListener(Transport.EVENT_TYPE, listener);
-			transport.listener = listener;
-		},
-
-		close: function () {
-			this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener);
-			this.listener = null;
-		}
-	};
-
-	module.exports = Transport;
-	return module.exports;
-});
-$__System.registerDynamic('27', ['17', '1e', '1f', '20', '22', '23', '24', '26'], true, function ($__require, exports, module) {
+$__System.registerDynamic('26', ['17', '1e', '1f', '20', '22', '23', '25'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
@@ -1514,8 +1421,7 @@ $__System.registerDynamic('27', ['17', '1e', '1f', '20', '22', '23', '24', '26']
 	var BlankTransport = $__require('20');
 	var ExtensionTransport = $__require('22');
 	var BroadcastChannelTransport = $__require('23');
-	var StorageTransport = $__require('24');
-	var DOMEventTransport = $__require('26');
+	var StorageTransport = $__require('25');
 
 	var SameOrigin = function () {
 		switch (true) {
@@ -1529,8 +1435,6 @@ $__System.registerDynamic('27', ['17', '1e', '1f', '20', '22', '23', '24', '26']
 				return NwTransport;
 			case PostMessageTransport.supported:
 				return PostMessageTransport;
-			case DOMEventTransport.supported:
-				return DOMEventTransport;
 			default:
 				return BlankTransport;
 		}
@@ -1553,14 +1457,14 @@ $__System.registerDynamic('27', ['17', '1e', '1f', '20', '22', '23', '24', '26']
 	};
 	return module.exports;
 });
-$__System.registerDynamic('28', ['27'], true, function ($__require, exports, module) {
+$__System.registerDynamic('27', ['26'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
-	var SameOriginTransport = $__require('27').SameOrigin;
-	var CrossOriginTransport = $__require('27').CrossOrigin;
+	var SameOriginTransport = $__require('26').SameOrigin;
+	var CrossOriginTransport = $__require('26').CrossOrigin;
 
 	function Channel(id) {
 		this.sameTransport = new SameOriginTransport(id);
@@ -1600,12 +1504,19 @@ $__System.registerDynamic('1c', [], true, function ($__require, exports, module)
 		var global = nodeGlobal || ('top' in window ? window.top.global || {} : {}); //NodeJS `global`
 		//NodeJS context
 		var isNode = 'process' in global && global.global === global && typeof __dirname !== 'undefined';
+		// Node-webkit context
+		var isNodeWebkit = 'process' in global && ('_nw_app' in global.process || '__node_webkit' in global.process || 'node-webkit' in global.process.versions);
 		// NWJS context
-		var isNW = 'process' in global && ('_nw_app' in global.process || '__node_webkit' in global.process || '__nwjs' in global.process || 'nw' in global.process.versions || 'chromium' in global.process.versions || 'node-webkit' in global.process.versions);
-		// var isExtension = (
-		// 	window.top 
-		// 	&& /^chrome-extension:\/\//.test(window.top.location)
-		// )
+		var isNW = 'process' in global && ('__nwjs' in global.process || 'nw' in global.process.versions);
+
+		// var isExtension = (function(){
+		// 	try {
+		// 		return Boolean(window.top && window.top.location.protocol === 'chrome-extension:')
+		// 	}
+		// 	catch(err) {
+		// 		return false
+		// 	}
+		// }())
 
 		//export
 		exports.window = window;
@@ -1613,21 +1524,22 @@ $__System.registerDynamic('1c', [], true, function ($__require, exports, module)
 		exports.location = location;
 		exports.is = {
 			node: isNode,
-			nw: isNW
+			nw: isNW,
+			nodeWebkit: isNodeWebkit
 			//extension: isExtension
 		};
 		exports.undefined = undefined;
 	}(this, typeof global !== 'undefined' ? global : null, typeof window !== 'undefined' ? window : null);
 	return module.exports;
 });
-$__System.registerDynamic('1', ['16', '28', '1c'], true, function ($__require, exports, module) {
+$__System.registerDynamic('1', ['16', '27', '1c'], true, function ($__require, exports, module) {
 	'use strict';
 
 	var define,
 	    global = this || self,
 	    GLOBAL = global;
 	var HandlersCollection = $__require('16');
-	var Channel = $__require('28');
+	var Channel = $__require('27');
 	var window = $__require('1c').window;
 
 	function CrossChannel(name) {
