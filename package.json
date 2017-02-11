@@ -2,7 +2,7 @@
 	"name": "cross-channel",
 	"private": false,
 	"description": "Cross window messaging",
-	"version": "0.6.0",
+	"version": "0.6.1",
 	"license": "MIT",
 	"author": "Constantine Genchevsky",
 	"main": "src/index.js",
