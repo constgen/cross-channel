@@ -1,7 +1,7 @@
 {
 	"name": "cross-channel",
 	"private": false,
-	"description": "Cross window communication messaging",
+	"description": "Cross window messaging",
 	"version": "0.6.0",
 	"license": "MIT",
 	"author": "Constantine Genchevsky",
@@ -44,5 +44,12 @@
 	"engines": {
 		"node": ">=0.10.0",
 		"npm": ">=3.0.0"
-	}
+	},
+	"files": [
+		"src",
+		"dist",
+		"LICENSE",
+		"README.md",
+		"package.json"
+	]
 }
