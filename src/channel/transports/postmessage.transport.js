@@ -39,12 +39,13 @@ Transport.supported = Boolean(global.postMessage)
 Transport.EVENT_TYPE = 'message'
 
 Transport.prototype = {
+	constructor: Transport,
+	
 	send: function (data) {
 		var origin = this.origin
 		var message = new Message(data, this)
 		var windows = getAllWindows(this.port1)
 		var index = -1
-
 		while (++index in windows) {
 			windows[index].postMessage(message, origin)
 		}

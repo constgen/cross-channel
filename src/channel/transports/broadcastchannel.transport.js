@@ -13,20 +13,24 @@ function Transport (name){
 Transport.supported = Boolean(global.BroadcastChannel)
 Transport.EVENT_TYPE = 'message'
 
-Transport.prototype.send = function(data){
-	var message = new Message(data)
-	this.port.postMessage(message)
-}
+Transport.prototype = {
+	constructor: Transport,
 
-Transport.prototype.onMessageEvent = function(handler){
-	this.port.addEventListener(Transport.EVENT_TYPE, function(event){
-		var messageEvent = new MessageEvent(event)
-		handler(messageEvent)
-	})
-}
+	send: function (data) {
+		var message = new Message(data)
+		this.port.postMessage(message)
+	},
 
-Transport.prototype.close = function(){
-	this.port.close()
+	onMessageEvent: function (handler) {
+		this.port.addEventListener(Transport.EVENT_TYPE, function (event) {
+			var messageEvent = new MessageEvent(event)
+			handler(messageEvent)
+		})
+	},
+
+	close: function () {
+		this.port.close()
+	}
 }
 
 module.exports = Transport

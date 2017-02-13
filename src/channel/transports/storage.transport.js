@@ -12,11 +12,10 @@ var storageSupported = (function () {
 	catch (e) { return false }
 } ())
 var URL = (typeof window.URL === 'function') && window.URL
-var StorageEvent = window.StorageEvent
-var latestEventData
+var StorageEvent = window.StorageEvent || {}
 
 //IE and Edge fix, Opera <=12 fix
-if (typeof StorageEvent === 'object' || StorageEvent.length === 0) {
+if (storageSupported && (typeof StorageEvent === 'object' || StorageEvent.length === 0)) {
 	StorageEvent = function (eventType, params) {
 		params = params || {}
 		var event = document.createEvent('Event')
@@ -52,6 +51,7 @@ function Transport(name) {
 	this.listener = null
 	this.name = name
 	this.key = generateRandomKey()
+	this.latestEventData = undefined
 }
 
 Transport.supported = Boolean(storageSupported)
@@ -59,13 +59,14 @@ Transport.STORAGE_KEY = '__cross-channel_message'
 Transport.EVENT_TYPE = 'storage'
 
 Transport.prototype = {
+	constructor: Transport,
+	
 	send: function (data) {
 		var message = new Message(data, this)
 		message.changeTrigger = generateRandomKey()
 		var port1 = this.port1
 		var port2 = this.port2
 		var messageJSON = message.asJSON()
-
 		setTimeout(function () {
 			var storageEvent = new StorageEvent(Transport.EVENT_TYPE, { newValue: messageJSON })
 			try {
@@ -91,14 +92,13 @@ Transport.prototype = {
 				&& ('sourceChannel' in messageEvent)
 				&& transport.name === messageEvent.sourceChannel //events on the same channel
 				&& transport.key !== messageEvent.key //skip returned back events
-				&& latestEventData !== event.data
+				&& transport.latestEventData !== event.data
 				&& event.origin === locationOrigin
 			) {
-				latestEventData = event.data //fix previous IE double event handling
+				transport.latestEventData = event.data //fix previous IE double event handling
 				handler(messageEvent)
 			}
 		}
-
 		port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
 		port2.addEventListener(Transport.EVENT_TYPE, listener)
 		this.listener = listener
@@ -107,6 +107,7 @@ Transport.prototype = {
 	close: function () {
 		this.port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
 		this.listener = null
+		this.latestEventData = undefined
 	}
 }
 

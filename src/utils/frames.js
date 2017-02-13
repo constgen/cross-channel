@@ -6,7 +6,12 @@ module.exports = {
 	isSameOrigin: function (win, currentWin) {
 		try {
 			if (win.location.origin) {
-				return win.location.origin === currentWin.location.origin
+				if (environment.is.nw) {
+					return true //workaround for NWJS app when external origin have full privileges
+				}
+				else {
+					return win.location.origin === currentWin.location.origin
+				}
 			}
 			else {
 				return win.location.host === currentWin.location.host && win.location.protocol === currentWin.location.protocol

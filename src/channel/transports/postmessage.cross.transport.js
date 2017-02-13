@@ -41,12 +41,13 @@ Transport.supported = Boolean(global.postMessage)
 Transport.EVENT_TYPE = 'message'
 
 Transport.prototype = {
+	constructor: Transport,
+	
 	send: function (data) {
 		var origin = this.origin
 		var message = new Message(data, this)
 		var windows = getCrossChildWindows(this.port1)
 		var index = -1
-
 		this.port1.postMessage(message, origin) //always send message to a top window
 		while (++index in windows) {
 			windows[index].postMessage(message, origin)

@@ -1,4 +1,4 @@
-﻿'use strict';
+﻿'use strict'
 
 var environment = require('../utils/environment.js')
 
@@ -9,11 +9,6 @@ function MessageEvent(config) {
 	config = config || {}
 	var message = config.data || {}
 
-
-	// if (!message) {
-	// 	return this; //EXIT, if message is empty
-	// }
-
 	if (typeof message === 'string') {
 		try {
 			message = JSON.parse(message)
@@ -21,25 +16,6 @@ function MessageEvent(config) {
 			console.error(err, event);
 		}
 	}
-
-	//connextionMessageRegExp = /^__([A-Za-z]+?)__:/;
-	// connectionCretaria,
-	// connectionType,
-	// connectionMatch,
-	// data;
-
-	// //parse message without try-catch
-	// if (message && typeof message === 'string') {
-	// 	connectionMatch = message.match(connextionMessageRegExp);
-
-	// 	if (connectionMatch) {
-	// 		connectionCretaria = connectionMatch[0];
-	// 		connectionType = connectionMatch[1];
-	// 		if (connectionType === messageType) {
-	// 			data = JSON.parse(message.substr(connectionCretaria.length));
-	// 		}
-	// 	}
-	// }
 
 	Object.defineProperties(this, {
 		'type': {
@@ -69,7 +45,9 @@ function MessageEvent(config) {
 	});
 }
 
-MessageEvent.prototype = Object.create(EventConstructor.prototype)
-MessageEvent.prototype.constructor = MessageEvent
+MessageEvent.prototype = Object.create(
+	EventConstructor.prototype, 
+	{constructor: { writable: true, configurable: true, value: MessageEvent }}
+)
 
 module.exports = MessageEvent

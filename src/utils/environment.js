@@ -9,31 +9,43 @@
 		&& (global.global === global)		
 		&& (typeof __dirname !== 'undefined')	
 	)
-	// NWJS context
-	var isNW = (
+	// Node-webkit context
+	var isNodeWebkit = (
 		('process' in global)
 		&& (
 			('_nw_app' in global.process)
 			|| ('__node_webkit' in global.process)
-			|| ('__nwjs' in global.process)
-			|| ('nw' in global.process.versions)
-			|| ('chromium' in global.process.versions)
 			|| ('node-webkit' in global.process.versions)
 		)
 	)
-	// var isExtension = (
-	// 	window.top 
-	// 	&& /^chrome-extension:\/\//.test(window.top.location)
-	// )
+	// NWJS context
+	var isNW = (
+		('process' in global)
+		&& (
+			('__nwjs' in global.process)
+			|| ('nw' in global.process.versions)
+		)
+	)
 
-	//export
-	exports.window = window
-	exports.global = global
-	exports.location = location
-	exports.is = {
-		node: isNode,
-		nw: isNW
-		//extension: isExtension
+	// var isExtension = (function(){
+	// 	try {
+	// 		return Boolean(window.top && window.top.location.protocol === 'chrome-extension:')
+	// 	}
+	// 	catch(err) {
+	// 		return false
+	// 	}
+	// }())
+
+	module.exports = {
+		window: window,
+		global: global,
+		location: location,
+		is: {
+			node: isNode,
+			nw: isNW,
+			nodeWebkit: isNodeWebkit
+			//extension: isExtension
+		},
+		undefined: undefined
 	}
-	exports.undefined = undefined
 } (this, (typeof global !== 'undefined') ? global : null, (typeof window !== 'undefined') ? window : null)
