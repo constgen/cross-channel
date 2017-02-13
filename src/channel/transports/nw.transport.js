@@ -68,6 +68,83 @@ function Transport(name) {
 Transport.supported = Boolean(environment.is.node && environment.is.nodeWebkit)
 Transport.EVENT_TYPE = 'message'
 
+Transport.prototype = {
+	constructor: Transport,
+
+	send: function (data) {
+		var transport = this
+		var origin = this.origin
+		var message = new Message(data, this)
+		getNWWindowThen(function (nwWindow) {
+			var browserWindow = transport.port
+			var topBrowserWindow = browserWindow.top
+			var browserFrames = getAllWindows(topBrowserWindow)
+
+			// try {
+			// 	if (global.__nwWindowsStore) {
+			// 		browserFrames = Object.keys(global.__nwWindowsStore)
+			// 			.map(function(id) {
+			// 				return global.__nwWindowsStore[id];
+			// 			})
+			// 			.map(function(nwWindow) {
+			// 				var browserWindow = nwWindow.window;
+			// 				return getAllWindows(browserWindow.top)
+			// 			})
+			// 			.reduce(function(allBrowserWindows, browserWindows) {
+			// 				return allBrowserWindows.concat(browserWindows)
+			// 			}, [])
+			// 	}
+			// }
+			// catch (err) {
+			// 	setTimeout(console.error.bind(console, err), 4000)
+			//
+			// }
+
+			var index = -1
+			while (++index in browserFrames) {
+				//.replace(/'/g, '\\\'')
+				nwWindow.eval(browserFrames[index].frameElement || null, 'window.postMessage(' + JSON.stringify(message.asJSON()) + ', "' + origin + '")')
+			}
+		})
+	},
+
+	onMessageEvent: function (handler) {
+		var transport = this
+		function listener(e) {
+			var window = this
+			var nativeMessageEventWorks = window.MessageEvent && window.MessageEvent.length
+			var event = nativeMessageEventWorks ? (new window.MessageEvent(Transport.EVENT_TYPE, e)) : e //fixes crashes in NWjs, when read `e.data`
+			var messageEvent = new MessageEvent(event)
+
+			if (
+				('key' in messageEvent)
+				&& ('sourceChannel' in messageEvent)
+				&& transport.name === messageEvent.sourceChannel //events on the same channel
+				&& transport.key !== messageEvent.key //skip returned back events
+			) {
+				handler(messageEvent)
+			}
+		}
+
+		getNWWindowThen(function () {
+			var port = transport.port
+			port.removeEventListener(Transport.EVENT_TYPE, transport.listener)
+			port.addEventListener(Transport.EVENT_TYPE, listener)
+			transport.listener = listener
+		})
+
+	},
+
+	close: function () {
+		var transport = this
+		getNWWindowThen(function (nwWindow) {
+			transport.port.removeEventListener(Transport.EVENT_TYPE, transport.listener)
+			transport.listener = null
+			nwWindow.removeListener('loaded', transport.nwLoadedListener)
+		})
+	}
+}
+
 //computed `this.port`
 Object.defineProperty(Transport.prototype, 'port', {
 	get: function () {
@@ -76,77 +153,5 @@ Object.defineProperty(Transport.prototype, 'port', {
 	set: function (value) { }
 })
 
-Transport.prototype.send = function (data) {
-	var transport = this
-	var origin = this.origin
-	var message = new Message(data, this)
-	getNWWindowThen(function (nwWindow) {
-		var browserWindow = transport.port
-		var topBrowserWindow = browserWindow.top
-		var browserFrames = getAllWindows(topBrowserWindow)
-
-		// try {
-		// 	if (global.__nwWindowsStore) {
-		// 		browserFrames = Object.keys(global.__nwWindowsStore)
-		// 			.map(function(id) {
-		// 				return global.__nwWindowsStore[id];
-		// 			})
-		// 			.map(function(nwWindow) {
-		// 				var browserWindow = nwWindow.window;
-		// 				return getAllWindows(browserWindow.top)
-		// 			})
-		// 			.reduce(function(allBrowserWindows, browserWindows) {
-		// 				return allBrowserWindows.concat(browserWindows)
-		// 			}, [])
-		// 	}
-		// }
-		// catch (err) {
-		// 	setTimeout(console.error.bind(console, err), 4000)
-		//
-		// }
-
-		var index = -1
-		while (++index in browserFrames) {
-			//.replace(/'/g, '\\\'')
-			nwWindow.eval(browserFrames[index].frameElement || null, 'window.postMessage(' + JSON.stringify(message.asJSON()) + ', "' + origin + '")')
-		}
-	})
-}
-
-Transport.prototype.onMessageEvent = function (handler) {
-	var transport = this
-	function listener(e) {
-		var window = this
-		var nativeMessageEventWorks = window.MessageEvent && window.MessageEvent.length
-		var event = nativeMessageEventWorks ? (new window.MessageEvent(Transport.EVENT_TYPE, e)) : e //fixes crashes in NWjs, when read `e.data`
-		var messageEvent = new MessageEvent(event)
-
-		if (
-			('key' in messageEvent)
-			&& ('sourceChannel' in messageEvent)
-			&& transport.name === messageEvent.sourceChannel //events on the same channel
-			&& transport.key !== messageEvent.key //skip returned back events
-		) {
-			handler(messageEvent)
-		}
-	}
-
-	getNWWindowThen(function () {
-		var port = transport.port
-		port.removeEventListener(Transport.EVENT_TYPE, transport.listener)
-		port.addEventListener(Transport.EVENT_TYPE, listener)
-		transport.listener = listener
-	})
-
-}
-
-Transport.prototype.close = function () {
-	var transport = this
-	getNWWindowThen(function (nwWindow) {
-		transport.port.removeEventListener(Transport.EVENT_TYPE, transport.listener)
-		transport.listener = null
-		nwWindow.removeListener('loaded', transport.nwLoadedListener)
-	})
-}
 
 module.exports = Transport

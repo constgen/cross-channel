@@ -59,6 +59,8 @@ Transport.STORAGE_KEY = '__cross-channel_message'
 Transport.EVENT_TYPE = 'storage'
 
 Transport.prototype = {
+	constructor: Transport,
+	
 	send: function (data) {
 		var message = new Message(data, this)
 		message.changeTrigger = generateRandomKey()

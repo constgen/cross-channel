@@ -39,58 +39,60 @@ function Transport(name) {
 
 Transport.supported = Boolean(detection)
 
-Transport.prototype.send = function (data) {
-	var message = new Message(data, this)
-	var transport = this
+Transport.prototype = {
+	constructor: Transport,
 
-	this.port.sendMessage(message)
-	if (this.tabs) {
-		this.tabs.query({}, function (tabs) {
-			var i = -1
-			while (++i in tabs) {
-				transport.tabs.sendMessage(tabs[i].id, message, function () {
-					var err = runtime.lastError
-				})
-			}
-		})
-	}
-	//this.port.sendMessage(extensionId, message)
-}
+	send: function (data) {
+		var message = new Message(data, this)
+		var transport = this
 
-Transport.prototype.onMessageEvent = function (handler) {
-	var transport = this
-
-	//	Fired when a message is sent from another extension/app (by runtime.sendMessage). Cannot be used in a content script. 
-	// chrome.runtime.onMessageExternal.addListener(function (request, sender, sendResponse){})
-
-	function listener(message, sender) {
-		var messageEvent = new MessageEvent({
-			data: message,
-			origin: sender.tab ? sender.tab.url : sender.url
-		})
-
-		if (
-			('sourceChannel' in messageEvent)
-			&& ('key' in messageEvent)
-			&& transport.name === messageEvent.sourceChannel //events on the same channel
-			&& transport.key !== messageEvent.key //skip returned back events
-		) {
-			handler(messageEvent)
+		this.port.sendMessage(message)
+		if (this.tabs) {
+			this.tabs.query({}, function (tabs) {
+				var i = -1
+				while (++i in tabs) {
+					transport.tabs.sendMessage(tabs[i].id, message, function () {
+						var err = runtime.lastError
+					})
+				}
+			})
 		}
+		//this.port.sendMessage(extensionId, message)
+	},
+
+	onMessageEvent: function (handler) {
+		var transport = this
+
+		//	Fired when a message is sent from another extension/app (by runtime.sendMessage). Cannot be used in a content script. 
+		// chrome.runtime.onMessageExternal.addListener(function (request, sender, sendResponse){})
+		function listener(message, sender) {
+			var messageEvent = new MessageEvent({
+				data: message,
+				origin: sender.tab ? sender.tab.url : sender.url
+			})
+
+			if (
+				('sourceChannel' in messageEvent)
+				&& ('key' in messageEvent)
+				&& transport.name === messageEvent.sourceChannel //events on the same channel
+				&& transport.key !== messageEvent.key //skip returned back events
+			) {
+				handler(messageEvent)
+			}
+		}
+
+		this.port.onMessage.removeListener(this.listener)
+		//this.port.onMessageExternal.removeListener(this.listener)
+		this.port.onMessage.addListener(listener)
+		//this.port.onMessageExternal.addListener(listener)
+		this.listener = listener
+	},
+
+	close: function () {
+		this.port.onMessage.removeListener(this.listener)
+		//this.port.onMessageExternal.removeListener(this.listener)
+		this.listener = noop
 	}
-
-	this.port.onMessage.removeListener(this.listener)
-	//this.port.onMessageExternal.removeListener(this.listener)
-	this.port.onMessage.addListener(listener)
-	//this.port.onMessageExternal.addListener(listener)
-	this.listener = listener
 }
-
-Transport.prototype.close = function () {
-	this.port.onMessage.removeListener(this.listener)
-	//this.port.onMessageExternal.removeListener(this.listener)
-	this.listener = noop
-}
-
 
 module.exports = Transport

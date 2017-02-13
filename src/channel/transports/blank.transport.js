@@ -4,8 +4,11 @@ var noop = require('../../utils/noop.js')
 
 function Transport() {}
 
-Transport.prototype.send = noop
-Transport.prototype.onMessageEvent = noop
-Transport.prototype.close = noop
+Transport.prototype = {
+	constructor: Transport,
+	send: noop,
+	onMessageEvent: noop,
+	close: noop
+}
 
 module.exports = Transport

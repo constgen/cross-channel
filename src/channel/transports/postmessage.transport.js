@@ -39,6 +39,8 @@ Transport.supported = Boolean(global.postMessage)
 Transport.EVENT_TYPE = 'message'
 
 Transport.prototype = {
+	constructor: Transport,
+	
 	send: function (data) {
 		var origin = this.origin
 		var message = new Message(data, this)

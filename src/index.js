@@ -27,54 +27,60 @@ function CrossChannel(name) {
 	})
 }
 
-CrossChannel.prototype.on =
-CrossChannel.prototype.addEventListener = function (type, handler) {
-	if (type === 'message') {
-		this.messageHandlers.push(handler)
+CrossChannel.prototype = {
+	constructor: CrossChannel,
+
+	addEventListener: function (type, handler) {
+		if (type === 'message') {
+			this.messageHandlers.push(handler)
+		}
+	},
+
+	removeEventListener: function (type, handler) {
+		if (type === 'message') {
+			this.messageHandlers.remove(handler)
+		}
+	},
+
+	removeAllListeners: function () {
+		this.messageHandlers.empty()
+	},
+
+	once: function (type, handler) {
+		var crosschannel = this
+		function removeHandler() {
+			crosschannel.messageHandlers.remove(handler)
+			crosschannel.messageHandlers.remove(removeHandler)
+		}
+		if (type === 'message') {
+			crosschannel.messageHandlers.push(handler)
+			crosschannel.messageHandlers.push(removeHandler)
+		}
+	},
+
+	postMessage: function (message) {
+		if (!arguments.length) {
+			throw new TypeError('Failed to execute \'postMessage\' on \'CrossChannel\': 1 argument required, but only 0 present.')
+		}
+		if (this.closed) {
+			return
+		}
+		this.channel.send(message)
+	},
+
+	close: function () {
+		this.channel.close()
+		this.messageHandlers.empty()
+		this.closed = true
+	},
+
+	valueOf: function () {
+		return '[object CrossChannel]'
 	}
 }
 
-CrossChannel.prototype.removeEventListener = function (type, handler) {
-	if (type === 'message') {
-		this.messageHandlers.remove(handler)
-	}
-}
-
-CrossChannel.prototype.removeAllListeners = function () {
-	this.messageHandlers.empty()
-}
-
-CrossChannel.prototype.once = function(type, handler){
-	var crosschannel = this
-	function removeHandler(){
-		crosschannel.messageHandlers.remove(handler)
-		crosschannel.messageHandlers.remove(removeHandler)
-	}
-	if (type === 'message') {
-		crosschannel.messageHandlers.push(handler)
-		crosschannel.messageHandlers.push(removeHandler)
-	}
-}
-
-CrossChannel.prototype.postMessage = function (message) {
-	if (!arguments.length) {
-		throw new TypeError('Failed to execute \'postMessage\' on \'CrossChannel\': 1 argument required, but only 0 present.')
-	}
-	if (this.closed) {
-		return
-	}
-	this.channel.send(message)
-}
-
-CrossChannel.prototype.close = function () {
-	this.channel.close()
-	this.messageHandlers.empty()
-	this.closed = true
-}
-
-CrossChannel.prototype.valueOf = function () {
-	return '[object CrossChannel]'
-}
+//shortcut
+CrossChannel.prototype.on = CrossChannel.prototype.addEventListener
 
 module.exports = CrossChannel
 window.CrossChannel = CrossChannel
