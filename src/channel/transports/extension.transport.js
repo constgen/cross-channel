@@ -45,7 +45,6 @@ Transport.prototype = {
 	send: function (data) {
 		var message = new Message(data, this)
 		var transport = this
-
 		this.port.sendMessage(message)
 		if (this.tabs) {
 			this.tabs.query({}, function (tabs) {
@@ -62,7 +61,6 @@ Transport.prototype = {
 
 	onMessageEvent: function (handler) {
 		var transport = this
-
 		//	Fired when a message is sent from another extension/app (by runtime.sendMessage). Cannot be used in a content script. 
 		// chrome.runtime.onMessageExternal.addListener(function (request, sender, sendResponse){})
 		function listener(message, sender) {
@@ -70,7 +68,6 @@ Transport.prototype = {
 				data: message,
 				origin: sender.tab ? sender.tab.url : sender.url
 			})
-
 			if (
 				('sourceChannel' in messageEvent)
 				&& ('key' in messageEvent)
@@ -80,7 +77,6 @@ Transport.prototype = {
 				handler(messageEvent)
 			}
 		}
-
 		this.port.onMessage.removeListener(this.listener)
 		//this.port.onMessageExternal.removeListener(this.listener)
 		this.port.onMessage.addListener(listener)

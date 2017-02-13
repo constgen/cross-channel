@@ -36,15 +36,16 @@
 	// 	}
 	// }())
 
-	//export
-	exports.window = window
-	exports.global = global
-	exports.location = location
-	exports.is = {
-		node: isNode,
-		nw: isNW,
-		nodeWebkit: isNodeWebkit
-		//extension: isExtension
+	module.exports = {
+		window: window,
+		global: global,
+		location: location,
+		is: {
+			node: isNode,
+			nw: isNW,
+			nodeWebkit: isNodeWebkit
+			//extension: isExtension
+		},
+		undefined: undefined
 	}
-	exports.undefined = undefined
 } (this, (typeof global !== 'undefined') ? global : null, (typeof window !== 'undefined') ? window : null)

@@ -46,7 +46,6 @@ Transport.prototype = {
 		var message = new Message(data, this)
 		var windows = getAllWindows(this.port1)
 		var index = -1
-
 		while (++index in windows) {
 			windows[index].postMessage(message, origin)
 		}

@@ -48,7 +48,6 @@ Transport.prototype = {
 		var message = new Message(data, this)
 		var windows = getCrossChildWindows(this.port1)
 		var index = -1
-
 		this.port1.postMessage(message, origin) //always send message to a top window
 		while (++index in windows) {
 			windows[index].postMessage(message, origin)

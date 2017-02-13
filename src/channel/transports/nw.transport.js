@@ -50,7 +50,6 @@ function Transport(name) {
 	this.listener = null
 	this.name = name
 	this.key = generateRandomKey()
-
 	this.nwLoadedListener = function () {
 		var listener = transport.listener
 		var port = transport.port
@@ -79,7 +78,6 @@ Transport.prototype = {
 			var browserWindow = transport.port
 			var topBrowserWindow = browserWindow.top
 			var browserFrames = getAllWindows(topBrowserWindow)
-
 			// try {
 			// 	if (global.__nwWindowsStore) {
 			// 		browserFrames = Object.keys(global.__nwWindowsStore)
@@ -99,7 +97,6 @@ Transport.prototype = {
 			// 	setTimeout(console.error.bind(console, err), 4000)
 			//
 			// }
-
 			var index = -1
 			while (++index in browserFrames) {
 				//.replace(/'/g, '\\\'')

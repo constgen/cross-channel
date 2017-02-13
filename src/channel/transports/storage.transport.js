@@ -67,7 +67,6 @@ Transport.prototype = {
 		var port1 = this.port1
 		var port2 = this.port2
 		var messageJSON = message.asJSON()
-
 		setTimeout(function () {
 			var storageEvent = new StorageEvent(Transport.EVENT_TYPE, { newValue: messageJSON })
 			try {
@@ -100,7 +99,6 @@ Transport.prototype = {
 				handler(messageEvent)
 			}
 		}
-
 		port2.removeEventListener(Transport.EVENT_TYPE, this.listener)
 		port2.addEventListener(Transport.EVENT_TYPE, listener)
 		this.listener = listener
