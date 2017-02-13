@@ -29,11 +29,15 @@ function CrossChannel(name) {
 
 CrossChannel.prototype.on =
 CrossChannel.prototype.addEventListener = function (type, handler) {
-	this.messageHandlers.push(handler)
+	if (type === 'message') {
+		this.messageHandlers.push(handler)
+	}
 }
 
 CrossChannel.prototype.removeEventListener = function (type, handler) {
-	this.messageHandlers.remove(handler)
+	if (type === 'message') {
+		this.messageHandlers.remove(handler)
+	}
 }
 
 CrossChannel.prototype.removeAllListeners = function () {
@@ -46,8 +50,10 @@ CrossChannel.prototype.once = function(type, handler){
 		crosschannel.messageHandlers.remove(handler)
 		crosschannel.messageHandlers.remove(removeHandler)
 	}
-	this.messageHandlers.push(handler)
-	this.messageHandlers.push(removeHandler)
+	if (type === 'message') {
+		crosschannel.messageHandlers.push(handler)
+		crosschannel.messageHandlers.push(removeHandler)
+	}
 }
 
 CrossChannel.prototype.postMessage = function (message) {
