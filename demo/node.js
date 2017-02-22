@@ -1,4 +1,7 @@
+'use strict'
+
 var CrossChannel = require('../src/index.js')
+//var CrossChannel = require('../dist/cross-channel.js')
 
 function handleEvent (event){
 	console.log('timeStamp: ' + event.timeStamp)
