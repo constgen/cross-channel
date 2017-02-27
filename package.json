@@ -25,7 +25,11 @@
 		"broadcast",
 		"channel",
 		"cross",
-		"interprocess"
+		"cross-frame",
+		"cross-window",
+		"cross-tab",
+		"inter-process",
+		"ipc"
 	],
 	"dependencies": {
 		"es6-symbol": "3.1.0"

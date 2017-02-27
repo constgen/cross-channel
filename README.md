@@ -50,7 +50,6 @@ MessageEvent {
 	data: Object|Boolean|String|Number|Null|Undefined
 	timeStamp: Number
 	origin: String
-	key: String
 	sourceChannel: String
 }
 ```
@@ -92,7 +91,7 @@ channelGreen2.on('message', function(event){
 - developement of a multiple screen expirience in a browser;
 - development of a JavaScript API for media players that are embedded in an `<iframe>`;
 - need an unified messaging channel in browser extensions;
-- messaging between all frames in a browser window;
+- messaging between all frames with any origins in a browser window;
 - messaging between all windows/frames and background processes on NWJS platform;
 - messaging between "Node" and "Webkit" context on the Node-webkit platform;
 - messaging across tabs of the same origin
@@ -100,12 +99,9 @@ channelGreen2.on('message', function(event){
 
 ## Compatibility
 <!-- http://www.tablesgenerator.com/markdown_tables -->
-| Platforms            |  self  | frames | tabs |
+### Browsers
+| Browsers             |  self  | frames | tabs |
 |----------------------|:------:|:------:|:----:|
-| NodeJS >=0.8         |    -   |   -    |   -  |
-| Node-webkit <=0.11   |    +   |   +    |   -  |
-| NWJS >=0.13          |    +   |   +    |   +  |
-| Electron             |    -   |   -    |   -  |
 | Firefox              |    +   |   +    |   +  |
 | Android Firefox      |    +   |   +    |   +  |
 | Chrome               |    +   |   +    |   +  |
@@ -119,11 +115,33 @@ channelGreen2.on('message', function(event){
 | iOS Safari           |    +   |   +    |   +  |
 | Android Browser >=4.1|    +   |   +    |   +  |
 | IE >=9               |    +   |   +    |  +-  |
-| Mobile IE >=10       |        |        |      |
+| Mobile IE >=10       |    +   |   +    |   -  |
 | Edge                 |    +   |   +-   |   +  |
-| Chrome extension     |    +   |   +    |   +  |
-| WebExtension         |    +   |   +    |   +  |
 | Worker               |        |        |      |
+
+### Extensions
+| Browsers             |  self  | background | content | popup | options |
+|----------------------|:------:|:----------:|:-------:|:-----:|:-------:|
+| Chrome extension     |    +   |      +     |    +    |   +   |    +    |
+| Firefox WebExtension |    +   |      +     |    +    |   +   |    +    |
+| Edge WebExtension    |        |            |         |       |         |
+| Safari extension     |    -   |      -     |    -    |   -   |    -    |
+
+### Applications
+| Platforms            |  self  | frames | tabs | webview | background | NodeJS |
+|----------------------|:------:|:------:|:----:|:-------:|:----------:|:------:| 
+| Node-webkit <=0.11   |    +   |   +    |   -  |    o    |     o      |   +    |
+| NWJS >=0.13          |    +   |   +    |   +  |         |     +      |   -    |
+| Electron             |        |        |      |         |            |        |
+| Chrome app           |        |        |      |         |            |        |
+| Windows Universal app|        |        |      |         |            |        |
+| Cordova              |        |        |      |         |            |        |
+| Firefox OS app       |        |        |      |         |            |        |
+
+### Server side
+| Platforms            |  self  | children | parallel | forks |
+|----------------------|:------:|:--------:|:--------:|:-----:|
+| NodeJS               |    -   |     -    |     -    |   -   |
 
 <!--## Polyfills that may be required for old platforms:
 - Object.create() (IE <=8, FF <=3.6, SF <5, iOS <=5.1, CH <6, OP <=11.50)-->
