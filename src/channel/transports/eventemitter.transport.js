@@ -1,7 +1,6 @@
 'use strict'
 
 var EventEmitter = require('events')
-
 var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
 var generateRandomKey = require('../../utils/generate-random-key.js')
@@ -52,6 +51,7 @@ Transport.prototype = {
 		}
 		port.removeListener(Transport.EVENT_TYPE, this.listener)
 		port.on(Transport.EVENT_TYPE, listener)
+		this.listener = listener
 	},
 
 	close: function () {
