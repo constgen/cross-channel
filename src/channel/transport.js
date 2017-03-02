@@ -8,6 +8,7 @@ var ExtensionTransport = require('./transports/extension.transport.js')
 var BroadcastChannelTransport = require('./transports/broadcastchannel.transport.js')
 var StorageTransport = require('./transports/storage.transport.js')
 var EventEmitterTransport = require('./transports/eventemitter.transport.js')
+var PipeTransport = require('./transports/pipe.transport.js')
 
 var SameOrigin = (function () {
 	switch (true) {
@@ -15,6 +16,7 @@ var SameOrigin = (function () {
 		case BroadcastChannelTransport.supported: return BroadcastChannelTransport
 		case StorageTransport.supported: return StorageTransport
 		case PostMessageTransport.supported: return PostMessageTransport
+		case PipeTransport.supported: return PipeTransport
 		case EventEmitterTransport.supported: return EventEmitterTransport
 		default: return BlankTransport
 	}
