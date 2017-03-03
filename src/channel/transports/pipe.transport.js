@@ -54,17 +54,20 @@ function Transport(name) {
 	//this.port.setMaxListeners(Infinity)
 
 	function setupSocket (socket) {
-
 		var reader = new NDJSONReader(socket)
 		// reader.on('end', socket.removeAllListeners)
 		
-		reader.on('data', function(data){
-			port.emit(Transport.MESSAGE_EVENT_TYPE, data)
+		reader.on('data', function(event){
+			event.source = reader
+			port.emit(Transport.EVENT_TYPE, event)
 		})
 
-		port.on(Transport.SEND_EVENT_TYPE, function(event){
-			//console.log(event.data)
+		port.on(Transport.EVENT_TYPE, function(event){
+			var source = event.source
+			if (source === reader) { return }
+			event.source = undefined
 			reader.write(event)
+			event.source = source
 		})
 	}
 
@@ -86,8 +89,7 @@ function Transport(name) {
 }
 
 Transport.supported = Boolean(environment.is.node)
-Transport.MESSAGE_EVENT_TYPE = 'message'
-Transport.SEND_EVENT_TYPE = 'send'
+Transport.EVENT_TYPE = 'message'
 
 Transport.prototype = {
 	constructor: Transport,
@@ -99,7 +101,7 @@ Transport.prototype = {
 			data: message
 		}
 		this.whenServerReady.then(function(){
-			port.emit(Transport.SEND_EVENT_TYPE, event)
+			port.emit(Transport.EVENT_TYPE, event)
 		})
 	},
 
@@ -117,8 +119,8 @@ Transport.prototype = {
 			}
 		}
 		this.whenServerReady.then(function(){
-			port.removeListener(Transport.MESSAGE_EVENT_TYPE, transport.listener)
-			port.on(Transport.MESSAGE_EVENT_TYPE, listener)
+			port.removeListener(Transport.EVENT_TYPE, transport.listener)
+			port.on(Transport.EVENT_TYPE, listener)
 			transport.listener = listener
 		})
 	},
