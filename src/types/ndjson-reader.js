@@ -9,9 +9,8 @@ function dataHandler(reader){
 	}
 }
 function endHandler(type, eventHandler){
-	var stream = this
 	return function() {
-		stream.removeListener(type, eventHandler)
+		this.removeListener(type, eventHandler)
 	}
 }
 
@@ -66,7 +65,9 @@ NDJSONReader.prototype.read = function () {
 				reader.emit('error', new Error('Could not parse row ' + data))
 			}
 		})
-		.forEach(reader.emit.bind(reader, 'data'))
+		.forEach(function(data){
+			reader.emit('data', data)
+		})
 }
 /**
  * Writes data to a stream.

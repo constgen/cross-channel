@@ -2,6 +2,14 @@
 
 var CrossChannel = require('../src/index.js')
 //var CrossChannel = require('../dist/cross-channel.js')
+var child_process = require("child_process");
+var cluster = require('cluster')
+
+//child_process.fork(require('path').join(__dirname, 'node.child1.js'))
+
+// if (cluster.isMaster) {
+// 	cluster.fork();
+// }
 
 function handleEvent(event) {
 	//console.log('timeStamp: ' + event.timeStamp)
@@ -16,9 +24,9 @@ var channel2 = new CrossChannel('green')
 var channel3 = new CrossChannel('green')
 
 channel1.on('message', handleEvent)
-channel2.on('message', handleEvent)
+//channel2.on('message', handleEvent)
 channel3.on('message', handleEvent)
 channel1.postMessage({ message: 'test1' })
 
-setTimeout(function () { channel1.postMessage({ message: 'test1' }) }, 150)
-setTimeout(function () { channel3.postMessage({ message: 'test3' }) }, 150)
+//setTimeout(function () { channel1.postMessage({ message: 'test1' }) }, 150)
+setTimeout(function () { channel3.postMessage({ message: 'test3' }) }, 3000)
