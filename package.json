@@ -4,7 +4,7 @@
 	"description": "Cross window messaging",
 	"version": "0.6.2",
 	"license": "MIT",
-	"author": "Constantine Genchevsky",
+	"author": "Constantine Genchevsky <const.gen@gmail.com>",
 	"main": "src/index.js",
 	"browser": "dist/cross-channel.js",
 	"scripts": {

@@ -1,18 +1,35 @@
 'use strict'
 
+/* Known possible issues:
+1. IE dispathes events on a `document`. if ('v'=='\v') 
+2. Firefox dispatches event on `body`
+3. IE 8 doesn't have `key` and `newValue` properties in an event. if (document.documentMode < 9)
+4. In iOS event is not fired between tabs
+5. IE 10-11 dispatches event before storage modification and `newValue` is not new but old
+6. IE 10-11 doesn't dispatch event in frames of the second tab
+
+Links:
+* http://blogs.msdn.com/b/ieinternals/archive/2009/09/16/bugs-in-ie8-support-for-html5-postmessage-sessionstorage-and-localstorage.aspx
+*/
+
 var MessageEvent = require('../../types/message-event.js')
 var Message = require('../../types/message.js')
 var generateRandomKey = require('../../utils/generate-random-key.js')
 var environment = require('../../utils/environment.js')
 var locationOrigin = require('../../services/location.js').origin
+var getOriginWindows = require('../../utils/frames.js').getSameOrigin
 
+var global = environment.global
 var window = environment.window
+var navigator = window.navigator
+var document = window.document
 var storageSupported = (function () {
 	try { return 'localStorage' in global && global.localStorage !== null }
 	catch (e) { return false }
-} ())
+}())
 var URL = (typeof window.URL === 'function') && window.URL
 var StorageEvent = window.StorageEvent || {}
+var edgeBrowser = navigator && ('msSaveBlob' in navigator) && document && !('documentMode' in document) // && 'StyleMedia' in window
 
 //IE and Edge fix, Opera <=12 fix
 if (storageSupported && (typeof StorageEvent === 'object' || StorageEvent.length === 0)) {
@@ -30,21 +47,6 @@ if (storageSupported && (typeof StorageEvent === 'object' || StorageEvent.length
 	StorageEvent.prototype = window.Event.prototype;
 }
 
-/* Known possible issues:
-1. IE dispathes events on a `document`. if ('v'=='\v') 
-2. Firefox dispatches event on `body`
-3. IE 8 doesn't have `key` and `newValue` properties in an event. if (document.documentMode < 9)
-4. In iOS event is not fired between tabs
-5. Edge doesn't dispatch event in frames of the current window
-6. IE 10-11 dispatches event before storage modification and `newValue` is not new but old
-7. IE 10-11 doesn't dispatch event in frames of the second tab
-
-Links:
-* http://blogs.msdn.com/b/ieinternals/archive/2009/09/16/bugs-in-ie8-support-for-html5-postmessage-sessionstorage-and-localstorage.aspx
-
-A good case https://github.com/nodeca/tabex
-*/
-
 function Transport(name) {
 	this.port1 = global.localStorage // sessionStorage || globalStorage
 	this.port2 = window //document || body
@@ -60,13 +62,17 @@ Transport.EVENT_TYPE = 'storage'
 
 Transport.prototype = {
 	constructor: Transport,
-	
+
 	send: function (data) {
 		var message = new Message(data, this)
-		message.changeTrigger = generateRandomKey()
 		var port1 = this.port1
 		var port2 = this.port2
-		var messageJSON = message.asJSON()
+		var messageJSON
+		var windows
+		var index
+
+		message.changeTrigger = generateRandomKey()
+		messageJSON = message.asJSON()
 		setTimeout(function () {
 			var storageEvent = new StorageEvent(Transport.EVENT_TYPE, { newValue: messageJSON })
 			try {
@@ -75,7 +81,17 @@ Transport.prototype = {
 			catch (err) {
 				console.error(err)
 			}
-			port2.dispatchEvent(storageEvent)
+
+			if (edgeBrowser) { // fix: Edge doesn't dispatch event in frames of the current window
+				windows = getOriginWindows(port2.top)
+				index = -1
+				while (++index in windows) {
+					windows[index].dispatchEvent(storageEvent)
+				}
+			}
+			else {
+				port2.dispatchEvent(storageEvent)
+			}
 		}, 0)
 	},
 
@@ -86,16 +102,16 @@ Transport.prototype = {
 			event.data = event.newValue
 			event.origin = URL && event.url && new URL(event.url).origin || locationOrigin //fix for some specific issues when 'storage' event is dispached across origins
 			var messageEvent = new MessageEvent(event)
-			
+
 			if (
 				('key' in messageEvent)
 				&& ('sourceChannel' in messageEvent)
-				&& transport.name === messageEvent.sourceChannel //events on the same channel
-				&& transport.key !== messageEvent.key //skip returned back events
+				&& transport.name === messageEvent.sourceChannel // events on the same channel
+				&& transport.key !== messageEvent.key // skip returned back events
 				&& transport.latestEventData !== event.data
 				&& event.origin === locationOrigin
 			) {
-				transport.latestEventData = event.data //fix previous IE double event handling
+				transport.latestEventData = event.data // fix: previous IE handles event twice
 				handler(messageEvent)
 			}
 		}
