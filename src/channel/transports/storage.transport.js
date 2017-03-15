@@ -10,8 +10,6 @@
 
 Links:
 * http://blogs.msdn.com/b/ieinternals/archive/2009/09/16/bugs-in-ie8-support-for-html5-postmessage-sessionstorage-and-localstorage.aspx
-
-A good case https://github.com/nodeca/tabex
 */
 
 var MessageEvent = require('../../types/message-event.js')

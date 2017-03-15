@@ -112,11 +112,14 @@ channelGreen2.on('message', function(event){
 | Android Opera >=15   |    ✓   |   ✓    |   ✓  |
 | Opera mini           |    ✓   |   ✓    |   ✓  |
 | Safari >=5           |    ✓   |   ✓    |   ✓  |
-| iOS Safari           |    ✓   |   ✓    |   ✓  |
+| Safari on iOS >= 8   |    ✓   |   ✓    |   ✓  |
+<!--| Chrome on iOS        |    ✓   |   ✓    |   -  |-->
+<!--| Firefox on iOS       |    ✓   |   ✓    |   -  |-->
 | Android Browser >=4.1|    ✓   |   ✓    |   ✓  |
+<!--| IE <=8               |    -   |   -     |   -  |-->
 | IE >=9               |    ✓   |   ✓    |  ~   |
 | Mobile IE >=10       |    ✓   |   ✓    |   -  |
-| Edge                 |    ✓   |   ~    |   ✓  |
+| Edge                 |    ✓   |   ✓    |   ✓  |
 | Worker               |        |         |      |
 
 ### Extensions
@@ -130,8 +133,8 @@ channelGreen2.on('message', function(event){
 ### Applications
 | Platforms            |  self  | frames | tabs | webview | background | NodeJS |
 |----------------------|:------:|:------:|:----:|:-------:|:----------:|:------:| 
-| Node-webkit <=0.11   |    ✓   |   ✓    |   -  |    o    |     o      |   ✓    |
-| NWJS >=0.13          |    ✓   |   ✓    |   ✓  |         |     ✓      |   -    |
+| Node-webkit <=0.11   |    ✓   |   ✓    |   -  |    o    |     o     |   ✓    |
+| NWJS >=0.13          |    ✓   |   ✓    |   ✓  |         |     ✓     |   -    |
 | Electron             |        |        |      |         |            |        |
 | Chrome app           |        |        |      |         |            |        |
 | Windows Universal app|        |        |      |         |            |        |
