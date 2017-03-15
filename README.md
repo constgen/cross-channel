@@ -100,38 +100,38 @@ channelGreen2.on('message', function(event){
 ## Compatibility
 <!-- http://www.tablesgenerator.com/markdown_tables -->
 ### Browsers
-| Browsers             |  self  | frames | tabs |
-|----------------------|:------:|:------:|:----:|
-| Firefox              |    +   |   +    |   +  |
-| Android Firefox      |    +   |   +    |   +  |
-| Chrome               |    +   |   +    |   +  |
-| Android Chrome       |    +   |   +    |   +  |
-| Opera <=9            |    -   |   -    |   -  |
-| Opera <=12           |    +   |   +    |   +  |
-| Opera >=15           |    +   |   +    |   +  |
-| Android Opera >=15   |    +   |   +    |   +  |
-| Opera mini           |    +   |   +    |   +  |
-| Safari >=5           |    +   |   +    |   +  |
-| iOS Safari           |    +   |   +    |   +  |
-| Android Browser >=4.1|    +   |   +    |   +  |
-| IE >=9               |    +   |   +    |  +-  |
-| Mobile IE >=10       |    +   |   +    |   -  |
-| Edge                 |    +   |   +-   |   +  |
-| Worker               |        |        |      |
+| Browsers             |  self  | frames  | tabs |
+|----------------------|:------:|:-------:|:----:|
+| Firefox              |    ✓   |   ✓    |   ✓  |
+| Android Firefox      |    ✓   |   ✓    |   ✓  |
+| Chrome               |    ✓   |   ✓    |   ✓  |
+| Android Chrome       |    ✓   |   ✓    |   ✓  |
+| Opera <=9            |    -   |   -     |   -  |
+| Opera <=12           |    ✓   |   ✓    |   ✓  |
+| Opera >=15           |    ✓   |   ✓    |   ✓  |
+| Android Opera >=15   |    ✓   |   ✓    |   ✓  |
+| Opera mini           |    ✓   |   ✓    |   ✓  |
+| Safari >=5           |    ✓   |   ✓    |   ✓  |
+| iOS Safari           |    ✓   |   ✓    |   ✓  |
+| Android Browser >=4.1|    ✓   |   ✓    |   ✓  |
+| IE >=9               |    ✓   |   ✓    |  ~   |
+| Mobile IE >=10       |    ✓   |   ✓    |   -  |
+| Edge                 |    ✓   |   ~    |   ✓  |
+| Worker               |        |         |      |
 
 ### Extensions
-| Browsers             |  self  | background | content | popup | options |
-|----------------------|:------:|:----------:|:-------:|:-----:|:-------:|
-| Chrome extension     |    +   |      +     |    +    |   +   |    +    |
-| Firefox WebExtension |    +   |      +     |    +    |   +   |    +    |
-| Edge WebExtension    |        |            |         |       |         |
-| Safari extension     |    -   |      -     |    -    |   -   |    -    |
+| Browsers             |  self  | background  | content | popup | options |
+|----------------------|:------:|:-----------:|:-------:|:-----:|:-------:|
+| Chrome extension     |    ✓   |      ✓     |    ✓    |   ✓   |    ✓   |
+| Firefox WebExtension |    ✓   |      ✓     |    ✓    |   ✓   |    ✓   |
+| Edge WebExtension    |        |             |         |       |         |
+| Safari extension     |    -   |      -      |    -    |   -   |    -    |
 
 ### Applications
 | Platforms            |  self  | frames | tabs | webview | background | NodeJS |
 |----------------------|:------:|:------:|:----:|:-------:|:----------:|:------:| 
-| Node-webkit <=0.11   |    +   |   +    |   -  |    o    |     o      |   +    |
-| NWJS >=0.13          |    +   |   +    |   +  |         |     +      |   -    |
+| Node-webkit <=0.11   |    ✓   |   ✓    |   -  |    o    |     o      |   ✓    |
+| NWJS >=0.13          |    ✓   |   ✓    |   ✓  |         |     ✓      |   -    |
 | Electron             |        |        |      |         |            |        |
 | Chrome app           |        |        |      |         |            |        |
 | Windows Universal app|        |        |      |         |            |        |
