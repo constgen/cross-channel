@@ -11,11 +11,11 @@ var eventEmitter
 
 function Transport(name) {
 	eventEmitter = eventEmitter || new EventEmitter()
+	eventEmitter.setMaxListeners(Infinity)
 	this.port = eventEmitter
 	this.name = name
 	this.listener = noop
 	this.key = generateRandomKey()
-	this.port.setMaxListeners(Infinity)
 }
 
 Transport.supported = Boolean(environment.is.node)
@@ -38,10 +38,9 @@ Transport.prototype = {
 	onMessageEvent: function (handler) {
 		var transport = this
 		var port = this.port
-		//port.setMaxListeners(port.getMaxListeners() + 1)
 		function listener(event) {
 			var messageEvent = new MessageEvent(event)
-
+			
 			if (
 				transport.name === messageEvent.sourceChannel //events on the same channel
 				&& transport.key !== messageEvent.key //skip returned back events
@@ -49,9 +48,9 @@ Transport.prototype = {
 				handler(messageEvent)
 			}
 		}
-		port.removeListener(Transport.EVENT_TYPE, this.listener)
+		port.removeListener(Transport.EVENT_TYPE, transport.listener)
 		port.on(Transport.EVENT_TYPE, listener)
-		this.listener = listener
+		transport.listener = listener
 	},
 
 	close: function () {

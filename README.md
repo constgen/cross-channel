@@ -113,10 +113,10 @@ channelGreen2.on('message', function(event){
 | Opera mini           |    ✓   |   ✓    |   ✓  |
 | Safari >=5           |    ✓   |   ✓    |   ✓  |
 | Safari on iOS >= 8   |    ✓   |   ✓    |   ✓  |
-<!--| Chrome on iOS        |    ✓   |   ✓    |   -  |-->
-<!--| Firefox on iOS       |    ✓   |   ✓    |   -  |-->
+| Chrome on iOS        |        |         |      |
+| Firefox on iOS       |        |         |      |
 | Android Browser >=4.1|    ✓   |   ✓    |   ✓  |
-<!--| IE <=8               |    -   |   -     |   -  |-->
+| IE <=8               |    -   |   -     |   -  |
 | IE >=9               |    ✓   |   ✓    |  ~   |
 | Mobile IE >=10       |    ✓   |   ✓    |   -  |
 | Edge                 |    ✓   |   ✓    |   ✓  |

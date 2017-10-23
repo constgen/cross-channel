@@ -6,14 +6,11 @@ Know issues:
  */
 
 var net = require('net');
-var EventEmitter = require('events')
-var noop = require('../../utils/noop.js')
-var MessageEvent = require('../../types/message-event.js')
-var Message = require('../../types/message.js')
-var generateRandomKey = require('../../utils/generate-random-key.js')
-var environment = require('../../utils/environment.js')
 var NDJSONReader = require('../../types/ndjson-reader.js')
+var environment = require('../../utils/environment.js')
+var EventEmitterTransport = require('./eventemitter.transport.js')
 
+var supported = environment.is.node && typeof Promise !== 'undefined'
 var eventEmitter
 var tcpServer
 
@@ -80,49 +77,19 @@ function createServer(pipeName) {
 
 function Transport(name) {
 	var PIPE_NAME = '\\\\.\\pipe\\' + 'cross-channel-' + name;
-	eventEmitter = eventEmitter || new EventEmitter()
-	eventEmitter.setMaxListeners(Infinity)
 	tcpServer = tcpServer || createServer(PIPE_NAME)
-	this.name = name
-	this.port = eventEmitter
-	this.listener = noop
-	this.key = generateRandomKey()
+	EventEmitterTransport.call(this, name)
+	eventEmitter = eventEmitter || this.port
 }
 
-Transport.supported = Boolean(environment.is.node)
-Transport.EVENT_TYPE = 'message'
+Transport.supported = Boolean(supported)
+Transport.EVENT_TYPE = EventEmitterTransport.EVENT_TYPE
 
 Transport.prototype = {
 	constructor: Transport,
-
-	send: function (data) {
-		var message = new Message(data, this)
-		var event = {
-			data: message
-		}
-		this.port.emit(Transport.EVENT_TYPE, event)
-	},
-
-	onMessageEvent: function (handler) {
-		var transport = this
-		function listener(event) {
-			var messageEvent = new MessageEvent(event)
-			if (
-				transport.name === messageEvent.sourceChannel //events on the same channel
-				&& transport.key !== messageEvent.key //skip returned back events
-			) {
-				handler(messageEvent)
-			}
-		}
-		this.port.removeListener(Transport.EVENT_TYPE, transport.listener)
-		this.port.on(Transport.EVENT_TYPE, listener)
-		transport.listener = listener
-	},
-
-	close: function () {
-		this.port.removeListener(Transport.EVENT_TYPE, this.listener)
-		this.listener = noop
-	}
+	send: EventEmitterTransport.prototype.send,
+	onMessageEvent: EventEmitterTransport.prototype.onMessageEvent,
+	close: EventEmitterTransport.prototype.close
 }
 
 module.exports = Transport

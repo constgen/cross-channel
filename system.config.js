@@ -15,10 +15,14 @@ System.config({
 // custom config
 System.config({
 	meta: {
-		'events': {	build: false }
+		'events': { build: false },
+		'net': { build: false },
+		'util': { build: false }
 	},
 	paths: {
-		'events': '../src/utils/noop.js'
+		'events': '../src/utils/noop.js',
+		'net': '../src/utils/noop.js',
+		'util': '../src/utils/noop.js'
 	},
 	map: {
 		'es6-symbol': '../node_modules/es6-symbol',

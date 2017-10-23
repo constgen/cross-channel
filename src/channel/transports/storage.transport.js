@@ -24,7 +24,7 @@ var window = environment.window
 var navigator = window.navigator
 var document = window.document
 var storageSupported = (function () {
-	try { return 'localStorage' in global && global.localStorage !== null }
+	try { return 'localStorage' in global && global.localStorage }
 	catch (e) { return false }
 }())
 var URL = (typeof window.URL === 'function') && window.URL

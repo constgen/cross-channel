@@ -1,15 +1,15 @@
 ﻿'use strict';
 
 var util = require('util'),
-    EventEmitter = require('events').EventEmitter;
+	EventEmitter = require('events').EventEmitter;
 
-function dataHandler(reader){
-	return function(data) {
+function dataHandler(reader) {
+	return function (data) {
 		reader.push(data)
 	}
 }
-function endHandler(type, eventHandler){
-	return function() {
+function endHandler(type, eventHandler) {
+	return function () {
 		this.removeListener(type, eventHandler)
 	}
 }
@@ -28,7 +28,7 @@ function NDJSONReader(stream) {
 	stream.on('end', endHandler('data', pushData))
 	stream.on('close', endHandler('data', pushData))
 }
-util.inherits(NDJSONReader, EventEmitter)
+if (util.inherits) { util.inherits(NDJSONReader, EventEmitter) }
 /**
  * @static {String} - A devider symbol in the data string.
  */
@@ -65,7 +65,7 @@ NDJSONReader.prototype.read = function () {
 				reader.emit('error', new Error('Could not parse row ' + data))
 			}
 		})
-		.forEach(function(data){
+		.forEach(function (data) {
 			reader.emit('data', data)
 		})
 }
